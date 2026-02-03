@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Verified - EnglaBet</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Montserrat', sans-serif;
+        }
+        :root {
+            --primary: #0a2e5a;
+            --secondary: #1a4789;
+            --accent: #00a8d8;
+            --accent-gradient: linear-gradient(to right, #00a8d8, #00d8e8);
+            --text-light: #ffffff;
+            --card-bg: #1a3e75;
+            --success: #2ecc71;
+            --error: #ff3366;
+        }
+        body {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: var(--text-light);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .container {
+            width: 100%;
+            max-width: 500px;
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 40px 30px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            animation: fadeIn 0.5s ease;
+        }
+        .success-icon {
+            font-size: 60px;
+            color: var(--accent);
+            margin-bottom: 20px;
+        }
+        h1 {
+            font-size: 28px;
+            margin-bottom: 15px;
+            color: var(--text-light);
+        }
+        p {
+            font-size: 16px;
+            color: #a0c1ed;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+        .message {
+            background: rgba(0, 168, 216, 0.1);
+            border-left: 4px solid var(--accent);
+            padding: 15px;
+            margin: 20px 0;
+            text-align: left;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        .btn {
+            display: inline-block;
+            background: var(--accent-gradient);
+            color: var(--primary);
+            text-decoration: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-weight: bold;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0, 168, 216, 0.4);
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0, 168, 216, 0.5);
+        }
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--text-light);
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 10px;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .error {
+            color: #ff3366;
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+        .logo-main {
+            font-size: 24px;
+            font-weight: 900;
+            letter-spacing: -0.5px;
+        }
+        .logo-engla {
+            color: #00a8d8;
+            font-weight: 900;
+        }
+        .logo-bet {
+            color: #ff4b8f;
+            font-weight: 900;
+        }
+        .logo-reg {
+            font-size: 10px;
+            color: white;
+            vertical-align: super;
+            margin-left: 2px;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">
+            <div class="logo-main">
+                <span class="logo-engla">Engla</span><span class="logo-bet">Bet</span><sup class="logo-reg">®</sup>
+            </div>
+        </div>
+        
+        <i class="fas fa-check-circle success-icon"></i>
+        <h1>Email Successfully Verified!</h1>
+        
+        <p>Your email address has been verified successfully.</p>
+        
+        <div class="message">
+            <i class="fas fa-info-circle"></i> Your account is now fully activated. You can log in and start using EnglaBet.
+        </div>
+        
+        <p id="statusMessage">Redirecting you to login page...</p>
+        
+        <a href="https://englabet-com.pages.dev/login.html" class="btn" id="loginBtn">
+            <i class="fas fa-sign-in-alt"></i> Go to Login
+        </a>
+        
+        <p style="margin-top: 30px; font-size: 14px;">
+            If you are not redirected automatically, click the button above.
+        </p>
+    </div>
+
+    <!-- Font Awesome -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.7/dist/umd/supabase.min.js"></script>
+    
+    <script>
+        // Initialize Supabase with the same credentials
+        const supabaseUrl = 'https://sgtskerheqsfgiusdgaf.supabase.co';
+        const supabaseKey = 'sb_publishable_6Q1t_QlqdMv0o1E9fETjKg_D5XpBB2T';
+        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+        
+        // Get the hash from URL (contains the access token)
+        const hash = window.location.hash.substring(1);
+        const params = new URLSearchParams(hash);
+        
+        async function handleAuthCallback() {
+            const statusMessage = document.getElementById('statusMessage');
+            const loginBtn = document.getElementById('loginBtn');
+            
+            // Check if we have an access token in the URL
+            const accessToken = params.get('access_token');
+            const refreshToken = params.get('refresh_token');
+            
+            if (accessToken && refreshToken) {
+                try {
+                    statusMessage.innerHTML = '<span class="spinner"></span>Completing verification...';
+                    
+                    // Set the session using the tokens from the URL
+                    const { data, error } = await supabase.auth.setSession({
+                        access_token: accessToken,
+                        refresh_token: refreshToken
+                    });
+                    
+                    if (error) {
+                        throw error;
+                    }
+                    
+                    statusMessage.innerHTML = '<i class="fas fa-check" style="color: #2ecc71;"></i> Verification complete!';
+                    
+                    // Wait 2 seconds then redirect to login
+                    setTimeout(() => {
+                        window.location.href = 'https://englabet-com.pages.dev/login.html';
+                    }, 2000);
+                    
+                } catch (error) {
+                    console.error('Error during verification:', error);
+                    statusMessage.innerHTML = '<span class="error"><i class="fas fa-exclamation-triangle"></i> Verification failed. Please try logging in manually.</span>';
+                    loginBtn.style.display = 'inline-block';
+                }
+            } else {
+                // No tokens in URL, might be direct access or already verified
+                statusMessage.textContent = 'Your email is already verified or the link is invalid.';
+                loginBtn.style.display = 'inline-block';
+            }
+        }
+        
+        // Run the callback handler when page loads
+        document.addEventListener('DOMContentLoaded', handleAuthCallback);
+    </script>
+</body>
+</html>

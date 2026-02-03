@@ -1,0 +1,1220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EnglaBet Agent Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Montserrat', sans-serif;
+        }
+        :root {
+            --primary: #0a2e5a;
+            --secondary: #1a4789;
+            --accent: #00a8d8;
+            --accent-gradient: linear-gradient(to right, #00a8d8, #00d8e8);
+            --text-light: #ffffff;
+            --text-gray: #a0c1ed;
+            --card-bg: #1a3e75;
+            --card-dark: #0f2b50;
+            --success: #00c8ff;
+            --warning: #ffcc00;
+            --error: #e03e6e;
+            --pink: #ff4b8f;
+            --agent-primary: #0f3460;
+            --agent-secondary: #1e4a8a;
+            --agent-accent: #2eccff;
+        }
+        body {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: var(--text-light);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        /* Desktop Layout */
+        .dashboard-container {
+            display: flex;
+            min-height: 100vh;
+        }
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background: var(--agent-primary);
+            padding: 25px 20px;
+            box-shadow: 5px 0 15px rgba(0, 0, 0, 0.2);
+            position: fixed;
+            height: 100vh;
+            z-index: 100;
+            transition: transform 0.3s ease;
+        }
+        .logo-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .logo-img {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            overflow: hidden;
+        }
+        .logo-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        .logo-text {
+            display: flex;
+            flex-direction: column;
+        }
+        .logo-main {
+            font-size: 22px;
+            font-weight: 900;
+            letter-spacing: -0.5px;
+        }
+        .logo-engla {
+            color: #00a8d8;
+        }
+        .logo-bet {
+            color: var(--pink);
+        }
+        .logo-tagline {
+            font-size: 11px;
+            color: var(--text-gray);
+            font-weight: 600;
+        }
+        .agent-id-display {
+            background: rgba(0, 216, 232, 0.1);
+            border-radius: 8px;
+            padding: 12px 15px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(0, 216, 232, 0.3);
+            animation: pulseBorder 3s infinite;
+        }
+        .agent-id-label {
+            font-size: 12px;
+            color: var(--text-gray);
+            margin-bottom: 5px;
+        }
+        .agent-id-value {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--accent);
+            letter-spacing: 1px;
+        }
+        .nav-menu {
+            margin-top: 20px;
+        }
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: var(--text-gray);
+        }
+        .nav-item:hover {
+            background: rgba(0, 216, 232, 0.1);
+            transform: translateX(5px);
+            color: var(--text-light);
+        }
+        .nav-item.active {
+            background: var(--accent-gradient);
+            color: var(--primary);
+            box-shadow: 0 4px 12px rgba(0, 168, 216, 0.4);
+        }
+        .nav-icon {
+            width: 25px;
+            font-size: 18px;
+            margin-right: 15px;
+        }
+        .nav-text {
+            font-weight: 600;
+            font-size: 15px;
+        }
+        .nav-badge {
+            background: var(--accent);
+            color: var(--primary);
+            font-size: 11px;
+            padding: 3px 8px;
+            border-radius: 10px;
+            margin-left: auto;
+            font-weight: bold;
+        }
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 260px;
+            padding: 30px;
+            animation: fadeIn 0.5s ease;
+        }
+        /* Top Bar */
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .page-title {
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--text-light);
+        }
+        .page-subtitle {
+            font-size: 16px;
+            color: var(--text-gray);
+            margin-top: 5px;
+        }
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        .notifications {
+            position: relative;
+            cursor: pointer;
+        }
+        .notification-icon {
+            font-size: 22px;
+            color: var(--text-gray);
+            transition: all 0.3s ease;
+        }
+        .notification-icon:hover {
+            color: var(--accent);
+            transform: rotate(15deg);
+        }
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: var(--error);
+            color: white;
+            font-size: 10px;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: pulse 2s infinite;
+        }
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .profile-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--accent-gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            color: var(--primary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .profile-avatar:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 0 3px rgba(0, 216, 232, 0.3);
+        }
+        .profile-details {
+            display: flex;
+            flex-direction: column;
+        }
+        .profile-name {
+            font-weight: 700;
+            font-size: 16px;
+        }
+        .profile-role {
+            font-size: 13px;
+            color: var(--accent);
+            font-weight: 600;
+        }
+        /* Dashboard Cards */
+        .dashboard-cards {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+        .dashboard-card {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+        .dashboard-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: var(--accent-gradient);
+        }
+        .card-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            background: rgba(0, 216, 232, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            font-size: 24px;
+            color: var(--accent);
+        }
+        .card-value {
+            font-size: 32px;
+            font-weight: 800;
+            margin-bottom: 5px;
+            color: var(--text-light);
+        }
+        .card-label {
+            font-size: 14px;
+            color: var(--text-gray);
+            margin-bottom: 15px;
+        }
+        .card-change {
+            font-size: 13px;
+            font-weight: 600;
+        }
+        .positive {
+            color: #00ff88;
+        }
+        .negative {
+            color: var(--error);
+        }
+        /* Charts and Tables Section */
+        .charts-section {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+        .chart-container {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+        .section-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-light);
+        }
+        .time-filter {
+            display: flex;
+            gap: 10px;
+        }
+        .filter-btn {
+            padding: 8px 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            color: var(--text-gray);
+        }
+        .filter-btn.active {
+            background: var(--accent-gradient);
+            color: var(--primary);
+            font-weight: 600;
+        }
+        .filter-btn:hover:not(.active) {
+            background: rgba(255, 255, 255, 0.2);
+            color: var(--text-light);
+        }
+        /* Chart Placeholder */
+        .chart-placeholder {
+            height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            margin-top: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        .chart-placeholder::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.05), transparent);
+            animation: shimmer 2s infinite;
+        }
+        /* Recent Activity */
+        .activity-container {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .activity-list {
+            margin-top: 20px;
+        }
+        .activity-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
+        }
+        .activity-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateX(5px);
+        }
+        .activity-icon {
+            width: 45px;
+            height: 45px;
+            border-radius: 10px;
+            background: rgba(0, 216, 232, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-size: 18px;
+            color: var(--accent);
+        }
+        .activity-details {
+            flex: 1;
+        }
+        .activity-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        .activity-time {
+            font-size: 13px;
+            color: var(--text-gray);
+        }
+        .activity-amount {
+            font-weight: 700;
+            font-size: 16px;
+        }
+        .positive-amount {
+            color: #00ff88;
+        }
+        .negative-amount {
+            color: var(--error);
+        }
+        /* Players Section */
+        .players-section {
+            margin-top: 40px;
+        }
+        .players-table-container {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            margin-top: 20px;
+            overflow-x: auto;
+        }
+        .players-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .players-table th {
+            text-align: left;
+            padding: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            font-weight: 700;
+            color: var(--accent);
+        }
+        .players-table td {
+            padding: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .players-table tr:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        .player-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .player-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--accent-gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+        .player-name {
+            font-weight: 600;
+        }
+        .player-id {
+            font-size: 13px;
+            color: var(--text-gray);
+        }
+        .status-badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .status-active {
+            background: rgba(0, 200, 83, 0.2);
+            color: #00c853;
+        }
+        .status-inactive {
+            background: rgba(224, 62, 110, 0.2);
+            color: var(--error);
+        }
+        .status-pending {
+            background: rgba(255, 204, 0, 0.2);
+            color: var(--warning);
+        }
+        .view-btn {
+            padding: 8px 15px;
+            background: rgba(0, 216, 232, 0.1);
+            border-radius: 8px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            color: var(--accent);
+            font-weight: 600;
+        }
+        .view-btn:hover {
+            background: rgba(0, 216, 232, 0.2);
+            transform: translateY(-2px);
+        }
+        /* Footer */
+        .dashboard-footer {
+            margin-top: 50px;
+            padding-top: 25px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+            color: var(--text-gray);
+            font-size: 14px;
+        }
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        @keyframes pulseBorder {
+            0% { border-color: rgba(0, 216, 232, 0.3); }
+            50% { border-color: rgba(0, 216, 232, 0.7); }
+            100% { border-color: rgba(0, 216, 232, 0.3); }
+        }
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        @keyframes slideInRight {
+            from { transform: translateX(30px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .dashboard-cards {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .charts-section {
+                grid-template-columns: 1fr;
+            }
+        }
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            .main-content {
+                margin-left: 0;
+            }
+            .dashboard-cards {
+                grid-template-columns: 1fr;
+            }
+        }
+        /* Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .modal-content {
+            background: var(--card-bg);
+            border-radius: 15px;
+            width: 100%;
+            max-width: 500px;
+            padding: 30px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
+            animation: modalSlideIn 0.3s ease;
+        }
+        @keyframes modalSlideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+        .modal-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--accent);
+        }
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--text-gray);
+            font-size: 24px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .modal-close:hover {
+            color: var(--accent);
+            transform: rotate(90deg);
+        }
+        .modal-body {
+            padding: 10px 0;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text-gray);
+        }
+        .form-input {
+            width: 100%;
+            padding: 12px 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            color: var(--text-light);
+            font-size: 15px;
+            transition: all 0.3s ease;
+        }
+        .form-input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(0, 216, 232, 0.2);
+        }
+        .form-btn {
+            width: 100%;
+            padding: 14px;
+            background: var(--accent-gradient);
+            border: none;
+            border-radius: 8px;
+            color: var(--primary);
+            font-weight: 700;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+        .form-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 168, 216, 0.4);
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="logo-container">
+                <div class="logo-img">
+                    <img src="englabet.png" alt="EnglaBet Logo">
+                </div>
+                <div class="logo-text">
+                    <div class="logo-main">
+                        <span class="logo-engla">Engla</span><span class="logo-bet">Bet</span>
+                    </div>
+                    <div class="logo-tagline">Agent Dashboard</div>
+                </div>
+            </div>
+            
+            <div class="agent-id-display">
+                <div class="agent-id-label">AGENT ID</div>
+                <div class="agent-id-value" id="agent-id">AG-735291</div>
+            </div>
+            
+            <div class="nav-menu">
+                <div class="nav-item active" data-section="dashboard">
+                    <div class="nav-icon"><i class="fas fa-tachometer-alt"></i></div>
+                    <div class="nav-text">Dashboard</div>
+                </div>
+                <div class="nav-item" data-section="players">
+                    <div class="nav-icon"><i class="fas fa-users"></i></div>
+                    <div class="nav-text">Players</div>
+                    <div class="nav-badge">24</div>
+                </div>
+                <div class="nav-item" data-section="commissions">
+                    <div class="nav-icon"><i class="fas fa-money-bill-wave"></i></div>
+                    <div class="nav-text">Commissions</div>
+                </div>
+                <div class="nav-item" data-section="reports">
+                    <div class="nav-icon"><i class="fas fa-chart-pie"></i></div>
+                    <div class="nav-text">Reports</div>
+                </div>
+                <div class="nav-item" data-section="transactions">
+                    <div class="nav-icon"><i class="fas fa-exchange-alt"></i></div>
+                    <div class="nav-text">Transactions</div>
+                    <div class="nav-badge">3</div>
+                </div>
+                <div class="nav-item" data-section="referrals">
+                    <div class="nav-icon"><i class="fas fa-user-plus"></i></div>
+                    <div class="nav-text">Referrals</div>
+                </div>
+                <div class="nav-item" data-section="settings">
+                    <div class="nav-icon"><i class="fas fa-cog"></i></div>
+                    <div class="nav-text">Settings</div>
+                </div>
+                <div class="nav-item" onclick="logout()">
+                    <div class="nav-icon"><i class="fas fa-sign-out-alt"></i></div>
+                    <div class="nav-text">Logout</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Top Bar -->
+            <div class="top-bar">
+                <div>
+                    <div class="page-title">Agent Dashboard</div>
+                    <div class="page-subtitle">Welcome back, <span id="agent-name">Michael Agent</span></div>
+                </div>
+                <div class="user-info">
+                    <div class="notifications">
+                        <div class="notification-icon">
+                            <i class="fas fa-bell"></i>
+                        </div>
+                        <div class="notification-badge">3</div>
+                    </div>
+                    <div class="user-profile">
+                        <div class="profile-avatar" onclick="openModal('profile')">
+                            <i class="fas fa-user-tie"></i>
+                        </div>
+                        <div class="profile-details">
+                            <div class="profile-name" id="agent-full-name">Michael Agent</div>
+                            <div class="profile-role">Premium Agent</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Dashboard Cards -->
+            <div class="dashboard-cards">
+                <div class="dashboard-card">
+                    <div class="card-icon">
+                        <i class="fas fa-money-bill-wave"></i>
+                    </div>
+                    <div class="card-value">$ 12,845.50</div>
+                    <div class="card-label">Total Commission</div>
+                    <div class="card-change positive">
+                        <i class="fas fa-arrow-up"></i> 12.5% this month
+                    </div>
+                </div>
+                <div class="dashboard-card">
+                    <div class="card-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="card-value">24</div>
+                    <div class="card-label">Active Players</div>
+                    <div class="card-change positive">
+                        <i class="fas fa-arrow-up"></i> 3 new this week
+                    </div>
+                </div>
+                <div class="dashboard-card">
+                    <div class="card-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="card-value">$ 48,250</div>
+                    <div class="card-label">Player Deposits</div>
+                    <div class="card-change positive">
+                        <i class="fas fa-arrow-up"></i> 8.2% increase
+                    </div>
+                </div>
+                <div class="dashboard-card">
+                    <div class="card-icon">
+                        <i class="fas fa-trophy"></i>
+                    </div>
+                    <div class="card-value">#2</div>
+                    <div class="card-label">Agent Ranking</div>
+                    <div class="card-change positive">
+                        <i class="fas fa-arrow-up"></i> Up from #3
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Charts and Activity Section -->
+            <div class="charts-section">
+                <div class="chart-container">
+                    <div class="section-header">
+                        <div class="section-title">Commission Overview</div>
+                        <div class="time-filter">
+                            <button class="filter-btn active">Week</button>
+                            <button class="filter-btn">Month</button>
+                            <button class="filter-btn">Year</button>
+                        </div>
+                    </div>
+                    <div class="chart-placeholder">
+                        <div style="text-align: center; z-index: 2;">
+                            <i class="fas fa-chart-bar" style="font-size: 50px; color: var(--accent); margin-bottom: 15px;"></i>
+                            <div style="color: var(--text-gray);">Interactive Chart</div>
+                            <div style="font-size: 13px; color: var(--text-gray); margin-top: 5px;">Commission trends visualization</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="activity-container">
+                    <div class="section-header">
+                        <div class="section-title">Recent Activity</div>
+                    </div>
+                    <div class="activity-list">
+                        <div class="activity-item">
+                            <div class="activity-icon">
+                                <i class="fas fa-user-plus"></i>
+                            </div>
+                            <div class="activity-details">
+                                <div class="activity-title">New Player Registered</div>
+                                <div class="activity-time">10 minutes ago</div>
+                            </div>
+                            <div class="activity-amount positive-amount">+$25.50</div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-icon">
+                                <i class="fas fa-coins"></i>
+                            </div>
+                            <div class="activity-details">
+                                <div class="activity-title">Player Deposit</div>
+                                <div class="activity-time">1 hour ago</div>
+                            </div>
+                            <div class="activity-amount positive-amount">+$120.00</div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-icon">
+                                <i class="fas fa-gamepad"></i>
+                            </div>
+                            <div class="activity-details">
+                                <div class="activity-title">Game Play Commission</div>
+                                <div class="activity-time">3 hours ago</div>
+                            </div>
+                            <div class="activity-amount positive-amount">+$45.75</div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-icon">
+                                <i class="fas fa-money-check-alt"></i>
+                            </div>
+                            <div class="activity-details">
+                                <div class="activity-title">Commission Withdrawal</div>
+                                <div class="activity-time">Yesterday</div>
+                            </div>
+                            <div class="activity-amount negative-amount">-$1,000.00</div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-icon">
+                                <i class="fas fa-award"></i>
+                            </div>
+                            <div class="activity-details">
+                                <div class="activity-title">Performance Bonus</div>
+                                <div class="activity-time">2 days ago</div>
+                            </div>
+                            <div class="activity-amount positive-amount">+$500.00</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Players Section -->
+            <div class="players-section">
+                <div class="section-header">
+                    <div class="section-title">Recent Players</div>
+                    <button class="view-btn" onclick="navigateTo('players')">View All</button>
+                </div>
+                <div class="players-table-container">
+                    <table class="players-table">
+                        <thead>
+                            <tr>
+                                <th>Player</th>
+                                <th>Status</th>
+                                <th>Total Deposits</th>
+                                <th>Commission</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <div class="player-info">
+                                        <div class="player-avatar">JD</div>
+                                        <div>
+                                            <div class="player-name">John Doe</div>
+                                            <div class="player-id">PL-1001</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td><span class="status-badge status-active">Active</span></td>
+                                <td>$ 2,450.00</td>
+                                <td>$ 245.00</td>
+                                <td><button class="view-btn">View Details</button></td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="player-info">
+                                        <div class="player-avatar">SJ</div>
+                                        <div>
+                                            <div class="player-name">Sarah Johnson</div>
+                                            <div class="player-id">PL-1002</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td><span class="status-badge status-active">Active</span></td>
+                                <td>$ 1,850.00</td>
+                                <td>$ 185.00</td>
+                                <td><button class="view-btn">View Details</button></td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="player-info">
+                                        <div class="player-avatar">RB</div>
+                                        <div>
+                                            <div class="player-name">Robert Brown</div>
+                                            <div class="player-id">PL-1003</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td><span class="status-badge status-inactive">Inactive</span></td>
+                                <td>$ 750.00</td>
+                                <td>$ 75.00</td>
+                                <td><button class="view-btn">View Details</button></td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="player-info">
+                                        <div class="player-avatar">MW</div>
+                                        <div>
+                                            <div class="player-name">Michael Wilson</div>
+                                            <div class="player-id">PL-1004</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td><span class="status-badge status-pending">Pending</span></td>
+                                <td>$ 0.00</td>
+                                <td>$ 0.00</td>
+                                <td><button class="view-btn">View Details</button></td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="player-info">
+                                        <div class="player-avatar">ED</div>
+                                        <div>
+                                            <div class="player-name">Emily Davis</div>
+                                            <div class="player-id">PL-1005</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td><span class="status-badge status-active">Active</span></td>
+                                <td>$ 3,200.00</td>
+                                <td>$ 320.00</td>
+                                <td><button class="view-btn">View Details</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- Footer -->
+            <div class="dashboard-footer">
+                <p>&copy; 2023 EnglaBet Agent Dashboard. All rights reserved.</p>
+                <p>Last updated: <span id="current-date-time">Loading...</span></p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Profile Modal -->
+    <div id="profile-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">Agent Profile</div>
+                <button class="modal-close" onclick="closeModal('profile')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Agent ID</label>
+                    <input type="text" class="form-input" value="AG-735291" readonly>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Full Name</label>
+                    <input type="text" class="form-input" value="Michael Agent">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Email Address</label>
+                    <input type="email" class="form-input" value="michael.agent@englabet.com">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Phone Number</label>
+                    <input type="tel" class="form-input" value="+1 (555) 123-4567">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Commission Rate</label>
+                    <input type="text" class="form-input" value="25%" readonly>
+                </div>
+                <button class="form-btn">Update Profile</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Add Player Modal -->
+    <div id="add-player-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">Add New Player</div>
+                <button class="modal-close" onclick="closeModal('add-player')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Full Name</label>
+                    <input type="text" class="form-input" placeholder="Enter player's full name">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Email Address</label>
+                    <input type="email" class="form-input" placeholder="Enter player's email">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Phone Number</label>
+                    <input type="tel" class="form-input" placeholder="Enter player's phone number">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Initial Deposit</label>
+                    <input type="number" class="form-input" placeholder="Enter initial deposit amount">
+                </div>
+                <button class="form-btn">Add Player</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDivFTAKUznc1xryU8marfMDZG3v1eYsl8",
+            authDomain: "englabet-ad1fe.firebaseapp.com",
+            projectId: "englabet-ad1fe",
+            storageBucket: "englabet-ad1fe.firebasestorage.app",
+            messagingSenderId: "124544822433",
+            appId: "1:124544822433:web:c77c980f28c99364c214e0",
+            measurementId: "G-JMYYM433R7"
+        };
+        
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        
+        // Global agent data
+        let agentData = null;
+        
+        // Function to fetch agent data
+        async function fetchAgentData() {
+            try {
+                const user = auth.currentUser;
+                if (!user) {
+                    window.location.href = 'login.html';
+                    return;
+                }
+                
+                const agentDoc = await db.collection('agents').doc(user.uid).get();
+                if (!agentDoc.exists) {
+                    console.error('Agent data not found');
+                    return;
+                }
+                
+                agentData = agentDoc.data();
+                updateAgentUI();
+            } catch (error) {
+                console.error('Error fetching agent data:', error);
+            }
+        }
+        
+        // Update UI with agent data
+        function updateAgentUI() {
+            if (!agentData) return;
+            
+            // Update agent ID
+            const agentIdElement = document.getElementById('agent-id');
+            if (agentIdElement && agentData.agentId) {
+                agentIdElement.textContent = agentData.agentId;
+            }
+            
+            // Update agent name
+            const agentNameElements = document.querySelectorAll('#agent-name, #agent-full-name');
+            agentNameElements.forEach(element => {
+                if (agentData.firstName && agentData.lastName) {
+                    element.textContent = `${agentData.firstName} ${agentData.lastName}`;
+                }
+            });
+        }
+        
+        // Navigation functionality
+        function navigateTo(section) {
+            // Update active nav item
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            document.querySelector(`.nav-item[data-section="${section}"]`).classList.add('active');
+            
+            // For now, just show alert. In a real app, this would load different content
+            if (section !== 'dashboard') {
+                alert(`Navigating to ${section} section. In a full implementation, this would load the ${section} content.`);
+            }
+        }
+        
+        // Modal functionality
+        function openModal(modalId) {
+            document.getElementById(`${modalId}-modal`).style.display = 'flex';
+        }
+        
+        function closeModal(modalId) {
+            document.getElementById(`${modalId}-modal`).style.display = 'none';
+        }
+        
+        // Logout function
+        function logout() {
+            auth.signOut().then(() => {
+                window.location.href = 'login.html';
+            }).catch((error) => {
+                console.error('Logout error:', error);
+            });
+        }
+        
+        // Update current date and time
+        function updateDateTime() {
+            const now = new Date();
+            const options = { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            };
+            document.getElementById('current-date-time').textContent = now.toLocaleDateString('en-US', options);
+        }
+        
+        // Filter button functionality
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+        
+        // Nav item click handlers
+        document.querySelectorAll('.nav-item[data-section]').forEach(item => {
+            item.addEventListener('click', function() {
+                const section = this.getAttribute('data-section');
+                navigateTo(section);
+            });
+        });
+        
+        // Initialize the dashboard
+        window.onload = function() {
+            auth.onAuthStateChanged((user) => {
+                if (user) {
+                    fetchAgentData();
+                } else {
+                    window.location.href = 'login.html';
+                }
+            });
+            
+            // Update date time every second
+            updateDateTime();
+            setInterval(updateDateTime, 1000);
+            
+            // Add animation to cards on load
+            document.querySelectorAll('.dashboard-card').forEach((card, index) => {
+                card.style.animationDelay = `${index * 0.1}s`;
+                card.style.animation = 'fadeIn 0.5s ease forwards';
+            });
+            
+            // Add animation to activity items
+            document.querySelectorAll('.activity-item').forEach((item, index) => {
+                item.style.animationDelay = `${index * 0.1}s`;
+                item.style.animation = 'slideInRight 0.5s ease forwards';
+            });
+            
+            // Close modal when clicking outside
+            window.addEventListener('click', function(event) {
+                const modals = document.querySelectorAll('.modal-overlay');
+                modals.forEach(modal => {
+                    if (event.target === modal) {
+                        modal.style.display = 'none';
+                    }
+                });
+            });
+        };
+    </script>
+</body>
+</html>

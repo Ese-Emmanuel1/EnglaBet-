@@ -1,0 +1,2568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EnglaBet - Agent Registration</title>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <!-- Include Supabase JS library from CDN [citation:1] -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary-dark: #0a2e5a;
+            --primary: #1a4789;
+            --primary-light: #2a5ca9;
+            --accent: #00a8d8;
+            --accent-light: #00d8e8;
+            --accent-gradient: linear-gradient(135deg, #00a8d8 0%, #00d8e8 100%);
+            --success: #2ecc71;
+            --warning: #ff9f43;
+            --danger: #ff3366;
+            --text-light: #ffffff;
+            --text-gray: #a0c1ed;
+            --text-dark: #0a2e5a;
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --sidebar-bg: #0f2b50;
+            --input-bg: #f8fafc;
+            --border-color: #e2e8f0;
+            --shadow: 0 10px 40px rgba(10, 46, 90, 0.15);
+            --shadow-light: 0 5px 20px rgba(10, 46, 90, 0.08);
+            --radius: 12px;
+            --radius-lg: 16px;
+            --pink: #ff4b8f;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
+            color: var(--text-dark);
+            min-height: 100vh;
+            display: flex;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+        
+        /* Background Decorative Elements */
+        .bg-pattern {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(circle at 20% 80%, rgba(0, 168, 216, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(26, 71, 137, 0.1) 0%, transparent 50%);
+            z-index: -1;
+        }
+        
+        .container {
+            display: flex;
+            width: 100%;
+            max-width: 1300px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            min-height: 90vh;
+        }
+        
+        /* Sidebar */
+        .sidebar {
+            width: 380px;
+            background: var(--sidebar-bg);
+            color: white;
+            padding: 40px 30px;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .sidebar::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--accent-gradient);
+        }
+        
+        .logo-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 40px;
+        }
+        
+        .logo-img {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 168, 216, 0.4);
+            background: white;
+            padding: 0;
+        }
+        
+        .logo-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            border-radius: 10px;
+        }
+        
+        .logo-text {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            font-weight: 800;
+            line-height: 1.1;
+        }
+        
+        .logo-main {
+            font-size: 28px;
+            font-weight: 900;
+            letter-spacing: -0.5px;
+            display: flex;
+            align-items: center;
+            font-family: 'Montserrat', sans-serif;
+        }
+        
+        .logo-engla {
+            color: #00a8d8;
+            font-weight: 900;
+        }
+        
+        .logo-bet {
+            color: var(--pink);
+            font-weight: 900;
+        }
+        
+        .logo-reg {
+            font-size: 10px;
+            color: var(--text-gray);
+            vertical-align: super;
+            margin-left: 2px;
+            font-weight: 500;
+        }
+        
+        .logo-tagline {
+            font-size: 12px;
+            color: var(--text-gray);
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            margin-top: 4px;
+        }
+        
+        .agent-badge {
+            background: rgba(0, 168, 216, 0.2);
+            border: 1px solid rgba(0, 168, 216, 0.3);
+            border-radius: 20px;
+            padding: 8px 16px;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--accent);
+            display: inline-block;
+            margin-bottom: 30px;
+        }
+        
+        .sidebar-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            font-family: 'Montserrat', sans-serif;
+        }
+        
+        .sidebar-subtitle {
+            font-size: 15px;
+            color: var(--text-gray);
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+        
+        .benefits-list {
+            margin-top: auto;
+        }
+        
+        .benefits-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: white;
+        }
+        
+        .benefit-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 18px;
+        }
+        
+        .benefit-icon {
+            width: 24px;
+            height: 24px;
+            background: rgba(0, 168, 216, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            flex-shrink: 0;
+            color: var(--accent);
+        }
+        
+        .benefit-text {
+            font-size: 14px;
+            color: var(--text-gray);
+            line-height: 1.5;
+        }
+        
+        .sidebar-footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 12px;
+            color: var(--text-gray);
+            text-align: center;
+        }
+        
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 40px 50px;
+            overflow-y: auto;
+            max-height: 90vh;
+        }
+        
+        .content-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .header-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--primary-dark);
+            font-family: 'Montserrat', sans-serif;
+        }
+        
+        .header-subtitle {
+            font-size: 16px;
+            color: #666;
+            margin-top: 8px;
+        }
+        
+        .step-indicator {
+            display: flex;
+            align-items: center;
+            background: var(--input-bg);
+            border-radius: 30px;
+            padding: 5px;
+            width: fit-content;
+        }
+        
+        .step {
+            padding: 8px 20px;
+            border-radius: 30px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #666;
+            transition: all 0.3s ease;
+        }
+        
+        .step.active {
+            background: var(--accent-gradient);
+            color: white;
+            box-shadow: 0 4px 10px rgba(0, 168, 216, 0.3);
+        }
+        
+        /* Form Styles */
+        .form-section {
+            margin-bottom: 40px;
+            scroll-margin-top: 20px;
+        }
+        
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--primary-dark);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--border-color);
+            font-family: 'Montserrat', sans-serif;
+        }
+        
+        .section-subtitle {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 25px;
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 25px;
+            margin-bottom: 25px;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--primary);
+        }
+        
+        .form-label .required {
+            color: var(--danger);
+        }
+        
+        .input-with-icon {
+            position: relative;
+        }
+        
+        .input-icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            font-size: 16px;
+        }
+        
+        .form-control, .form-select {
+            width: 100%;
+            padding: 14px 15px 14px 45px;
+            background: var(--input-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            color: var(--text-dark);
+            font-size: 15px;
+            transition: all 0.3s ease;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .form-select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%230a2e5a' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 15px center;
+            background-size: 12px;
+            padding-right: 40px;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(0, 168, 216, 0.15);
+            background: white;
+        }
+        
+        .password-toggle {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        
+        /* Country Code Phone Input */
+        .phone-input-container {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .country-code-select {
+            width: 120px;
+            padding: 14px 15px;
+            background: var(--input-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            color: var(--text-dark);
+            font-size: 15px;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%230a2e5a' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 15px center;
+            background-size: 12px;
+            padding-right: 35px;
+            cursor: pointer;
+        }
+        
+        .phone-number-input {
+            flex: 1;
+            padding: 14px 15px 14px 45px;
+            background: var(--input-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            color: var(--text-dark);
+            font-size: 15px;
+        }
+        
+        /* Agent ID Display */
+        .agent-id-container {
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            border: 1px dashed var(--primary-light);
+            border-radius: var(--radius);
+            padding: 20px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .agent-id-label {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+        
+        .agent-id-value {
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--primary-dark);
+            letter-spacing: 1px;
+        }
+        
+        .agent-id-hint {
+            font-size: 12px;
+            color: #94a3b8;
+            margin-top: 5px;
+        }
+        
+        .copy-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .copy-btn:hover {
+            background: var(--primary-light);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 10px rgba(26, 71, 137, 0.2);
+        }
+        
+        /* File Upload Styling */
+        .file-upload-container {
+            margin-bottom: 20px;
+        }
+        
+        .file-preview {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--border-color);
+            display: block;
+            margin: 0 auto 15px;
+            background: var(--input-bg);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .file-preview:hover {
+            transform: scale(1.05);
+            border-color: var(--accent);
+        }
+        
+        .license-preview {
+            width: 100%;
+            height: 200px;
+            object-fit: contain;
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius);
+            background: var(--input-bg);
+            margin: 15px 0;
+            display: none;
+        }
+        
+        .upload-btn {
+            background: var(--accent-gradient);
+            color: white;
+            border: none;
+            padding: 12px 28px;
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 4px 12px rgba(0, 168, 216, 0.3);
+        }
+        
+        .upload-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 18px rgba(0, 168, 216, 0.4);
+        }
+        
+        .upload-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .upload-progress {
+            width: 100%;
+            height: 6px;
+            background: var(--border-color);
+            border-radius: 3px;
+            margin: 10px 0;
+            overflow: hidden;
+            display: none;
+        }
+        
+        .upload-progress-bar {
+            height: 100%;
+            background: var(--accent-gradient);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        
+        .upload-note {
+            font-size: 12px;
+            color: #94a3b8;
+            margin-top: 15px;
+        }
+        
+        /* License Upload */
+        .license-upload {
+            background: var(--input-bg);
+            border: 2px dashed var(--border-color);
+            border-radius: var(--radius);
+            padding: 30px;
+            text-align: center;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+        }
+        
+        .license-upload:hover {
+            border-color: var(--accent);
+            background: rgba(0, 168, 216, 0.02);
+        }
+        
+        .upload-icon {
+            font-size: 48px;
+            color: var(--accent);
+            margin-bottom: 15px;
+        }
+        
+        .upload-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--primary-dark);
+            margin-bottom: 10px;
+        }
+        
+        .upload-text {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 20px;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+            line-height: 1.6;
+        }
+        
+        /* Terms & Submit */
+        .terms-container {
+            background: var(--input-bg);
+            border-radius: var(--radius);
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+        
+        .terms-checkbox {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+        
+        .terms-checkbox input {
+            margin-top: 5px;
+            accent-color: var(--accent);
+        }
+        
+        .terms-text {
+            font-size: 14px;
+            color: #555;
+            line-height: 1.6;
+        }
+        
+        .terms-text a {
+            color: var(--accent);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .terms-text a:hover {
+            text-decoration: underline;
+        }
+        
+        .submit-btn {
+            width: 100%;
+            padding: 18px;
+            background: var(--accent-gradient);
+            border: none;
+            border-radius: var(--radius);
+            color: white;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 6px 20px rgba(0, 168, 216, 0.3);
+            font-family: 'Montserrat', sans-serif;
+            letter-spacing: 0.5px;
+        }
+        
+        .submit-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 168, 216, 0.4);
+        }
+        
+        .submit-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        /* Success Screen */
+        .success-screen {
+            text-align: center;
+            padding: 60px 40px;
+            display: none;
+        }
+        
+        .success-icon {
+            font-size: 70px;
+            color: var(--success);
+            margin-bottom: 25px;
+        }
+        
+        .success-title {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--primary-dark);
+            margin-bottom: 15px;
+            font-family: 'Montserrat', sans-serif;
+        }
+        
+        .success-message {
+            font-size: 16px;
+            color: #666;
+            line-height: 1.6;
+            max-width: 500px;
+            margin: 0 auto 30px;
+        }
+        
+        .agent-details {
+            background: var(--input-bg);
+            border-radius: var(--radius);
+            padding: 25px;
+            margin: 30px auto;
+            max-width: 500px;
+            text-align: left;
+        }
+        
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+        
+        .detail-label {
+            font-weight: 500;
+            color: #666;
+        }
+        
+        .detail-value {
+            font-weight: 600;
+            color: var(--primary-dark);
+        }
+        
+        /* Error States */
+        .error-message {
+            font-size: 13px;
+            color: var(--danger);
+            margin-top: 8px;
+            display: none;
+        }
+        
+        .form-control.error, .form-select.error, .country-code-select.error, .phone-number-input.error {
+            border-color: var(--danger);
+            background: rgba(255, 51, 102, 0.02);
+        }
+        
+        /* Error Highlight Animation */
+        @keyframes errorPulse {
+            0% { box-shadow: 0 0 0 0 rgba(255, 51, 102, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(255, 51, 102, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 51, 102, 0); }
+        }
+        
+        .error-highlight {
+            animation: errorPulse 1s;
+        }
+        
+        /* Loading Spinner */
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 10px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Email Verification Info Box */
+        .verification-info {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border: 1px solid var(--accent);
+            border-radius: var(--radius);
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        .verification-icon {
+            font-size: 36px;
+            color: var(--accent);
+            margin-bottom: 15px;
+        }
+        
+        .verification-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--primary-dark);
+            margin-bottom: 10px;
+        }
+        
+        .verification-text {
+            font-size: 14px;
+            color: #555;
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+        
+        /* Email Verification Status */
+        .email-verification-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            margin: 10px 0;
+        }
+        
+        .email-verified {
+            background: rgba(46, 204, 113, 0.1);
+            color: var(--success);
+            border: 1px solid rgba(46, 204, 113, 0.3);
+        }
+        
+        .email-pending {
+            background: rgba(255, 159, 67, 0.1);
+            color: var(--warning);
+            border: 1px solid rgba(255, 159, 67, 0.3);
+        }
+        
+        /* Countdown Timer */
+        .countdown-timer {
+            font-size: 14px;
+            color: var(--primary);
+            font-weight: 600;
+            margin: 10px 0;
+        }
+        
+        /* Immediate Verification Section */
+        .immediate-verification {
+            background: linear-gradient(135deg, #e8f7ff 0%, #d1f0ff 100%);
+            border: 2px solid var(--accent);
+            border-radius: var(--radius);
+            padding: 25px;
+            margin: 20px 0;
+            text-align: center;
+            animation: pulse 2s infinite;
+        }
+        
+        .immediate-verification .verification-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+        
+        .immediate-verification .verification-title {
+            font-size: 22px;
+            margin-bottom: 15px;
+        }
+        
+        .check-email-list {
+            text-align: left;
+            max-width: 400px;
+            margin: 20px auto;
+        }
+        
+        .check-email-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 12px;
+            font-size: 14px;
+            color: #555;
+        }
+        
+        .check-email-item i {
+            color: var(--accent);
+            margin-right: 10px;
+            margin-top: 2px;
+        }
+        
+        /* Email Already Registered Modal */
+        .email-registered-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .email-registered-content {
+            background: white;
+            border-radius: var(--radius-lg);
+            padding: 40px;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+            box-shadow: var(--shadow);
+            animation: slideUp 0.3s ease;
+        }
+        
+        .email-registered-icon {
+            font-size: 60px;
+            color: var(--warning);
+            margin-bottom: 20px;
+        }
+        
+        .email-registered-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary-dark);
+            margin-bottom: 15px;
+            font-family: 'Montserrat', sans-serif;
+        }
+        
+        .email-registered-message {
+            font-size: 16px;
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 25px;
+        }
+        
+        .email-registered-options {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin: 25px 0;
+        }
+        
+        .email-option-btn {
+            padding: 15px 20px;
+            border-radius: var(--radius);
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .login-btn {
+            background: var(--accent-gradient);
+            color: white;
+        }
+        
+        .reset-password-btn {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .use-different-btn {
+            background: var(--input-bg);
+            color: var(--primary-dark);
+            border: 2px solid var(--border-color);
+        }
+        
+        .email-option-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .container {
+                flex-direction: column;
+                max-width: 800px;
+            }
+            
+            .sidebar {
+                width: 100%;
+                padding: 30px;
+            }
+            
+            .main-content {
+                padding: 40px 30px;
+                max-height: none;
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            
+            .main-content {
+                padding: 30px 20px;
+            }
+            
+            .content-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 20px;
+            }
+            
+            .step-indicator {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .phone-input-container {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .country-code-select {
+                width: 100%;
+            }
+            
+            .email-registered-options {
+                flex-direction: column;
+            }
+            
+            .email-option-btn {
+                width: 100%;
+            }
+        }
+        
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.02); opacity: 0.9; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        @keyframes successPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease forwards;
+        }
+        
+        .success-pulse {
+            animation: successPulse 2s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-pattern"></div>
+    
+    <!-- Email Already Registered Modal -->
+    <div class="email-registered-modal" id="emailRegisteredModal">
+        <div class="email-registered-content">
+            <div class="email-registered-icon">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            
+            <h2 class="email-registered-title">Email Already Registered</h2>
+            
+            <p class="email-registered-message">
+                The email address <strong id="registeredEmailDisplay"></strong> is already registered with EnglaBet. 
+                What would you like to do?
+            </p>
+            
+            <div class="email-registered-options">
+                <button class="email-option-btn login-btn" id="goToLoginBtn">
+                    <i class="fas fa-sign-in-alt"></i> Login to Existing Account
+                </button>
+                
+                <button class="email-option-btn reset-password-btn" id="resetPasswordBtn">
+                    <i class="fas fa-key"></i> Reset Password
+                </button>
+                
+                <button class="email-option-btn use-different-btn" id="useDifferentEmailBtn">
+                    <i class="fas fa-envelope"></i> Use Different Email
+                </button>
+            </div>
+            
+            <p class="verification-text" style="margin-top: 20px; font-size: 13px;">
+                <i class="fas fa-info-circle"></i> If you haven't verified your email, check your inbox for the verification link.
+            </p>
+        </div>
+    </div>
+    
+    <div class="container fade-in">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="logo-container">
+                <div class="logo-img">
+                    <img src="englabet.png" alt="EnglaBet Logo">
+                </div>
+                <div class="logo-text">
+                    <div class="logo-main">
+                        <span class="logo-engla">Engla</span><span class="logo-bet">Bet</span><sup class="logo-reg">®</sup>
+                    </div>
+                    <div class="logo-tagline">Professional Agent Network</div>
+                </div>
+            </div>
+            
+            <div class="agent-badge">
+                <i class="fas fa-user-tie"></i> AGENT REGISTRATION
+            </div>
+            
+            <h2 class="sidebar-title">Join Our Exclusive Agent Network</h2>
+            <p class="sidebar-subtitle">Register as a professional agent to access premium tools, higher commissions, and exclusive opportunities in the EnglaBet ecosystem.</p>
+            
+            <div class="benefits-list">
+                <h3 class="benefits-title">Agent Benefits</h3>
+                
+                <div class="benefit-item">
+                    <div class="benefit-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="benefit-text">
+                        <strong>Higher Commission Rates</strong> - Earn up to 40% more than standard users
+                    </div>
+                </div>
+                
+                <div class="benefit-item">
+                    <div class="benefit-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="benefit-text">
+                        <strong>Client Management Tools</strong> - Advanced dashboard for managing your client portfolio
+                    </div>
+                </div>
+                
+                <div class="benefit-item">
+                    <div class="benefit-icon">
+                        <i class="fas fa-gem"></i>
+                    </div>
+                    <div class="benefit-text">
+                        <strong>Premium Support</strong> - Dedicated agent support team with priority response
+                    </div>
+                </div>
+                
+                <div class="benefit-item">
+                    <div class="benefit-icon">
+                        <i class="fas fa-bolt"></i>
+                    </div>
+                    <div class="benefit-text">
+                        <strong>Fast Track Verification</strong> - Expedited processing for agent applications
+                    </div>
+                </div>
+            </div>
+            
+            <div class="sidebar-footer">
+                <p>© 2025 EnglaBet Agent Network. All rights reserved.<br>
+                By registering, you agree to our Agent Agreement and Code of Conduct.</p>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="content-header">
+                <div>
+                    <h1 class="header-title">Agent Registration</h1>
+                    <p class="header-subtitle">Complete all fields to apply for agent status. All information is securely encrypted.</p>
+                </div>
+                
+                <div class="step-indicator">
+                    <div class="step active">1. Personal Details</div>
+                    <div class="step">2. Professional Info</div>
+                    <div class="step">3. Verification</div>
+                </div>
+            </div>
+            
+            <!-- Agent ID Display -->
+            <div class="agent-id-container">
+                <div>
+                    <div class="agent-id-label">Your Agent ID will be:</div>
+                    <div class="agent-id-value" id="agentIdDisplay">EB-AGENT-XXXXXX</div>
+                    <div class="agent-id-hint">This unique ID will be generated upon registration completion</div>
+                </div>
+                <button class="copy-btn" id="copyAgentIdBtn">
+                    <i class="fas fa-copy"></i> Copy ID
+                </button>
+            </div>
+            
+            <!-- Sign Up Form -->
+            <div id="signupFormContainer">
+                <form id="agentSignupForm">
+                    <!-- Personal Information Section -->
+                    <div class="form-section" id="personalSection">
+                        <h3 class="section-title">Personal Information</h3>
+                        <p class="section-subtitle">Please provide your personal details for account verification.</p>
+                        
+                        <!-- Profile Photo Upload -->
+                        <div class="file-upload-container">
+                            <label class="form-label">Profile Photo <span class="required">*</span></label>
+                            <img id="photoPreview" class="file-preview" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'%3E%3Crect width='120' height='120' fill='%23f8fafc'/%3E%3Cpath d='M60 35c-13.8 0-25 11.2-25 25s11.2 25 25 25 25-11.2 25-25-11.2-25-25-25zm0 45c-11 0-20-9-20-20s9-20 20-20 20 9 20 20-9 20-20 20zm0-60C40.2 20 24 36.2 24 56s16.2 36 36 36 36-16.2 36-36S79.8 20 60 20zm0 65c-16 0-29-13-29-29s13-29 29-29 29 13 29 29-13 29-29 29z' fill='%2300a8d8'/%3E%3C/svg%3E" alt="Profile preview">
+                            <input type="file" id="profilePhotoInput" accept="image/jpeg,image/png,image/jpg" style="display: none;">
+                            <button type="button" id="uploadPhotoBtn" class="upload-btn">
+                                <i class="fas fa-camera"></i> Upload Profile Photo
+                            </button>
+                            <div class="upload-progress" id="profileUploadProgress">
+                                <div class="upload-progress-bar" id="profileProgressBar"></div>
+                            </div>
+                            <input type="hidden" id="profilePhotoUrl">
+                            <p class="upload-note">Click to upload a clear profile photo (Max size: 5MB, JPG/PNG)</p>
+                            <div class="error-message" id="photoError">Profile photo is required.</div>
+                        </div>
+                        
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label">First Name <span class="required">*</span></label>
+                                <div class="input-with-icon">
+                                    <i class="fas fa-user input-icon"></i>
+                                    <input type="text" id="firstName" class="form-control" placeholder="Enter your first name" required>
+                                </div>
+                                <div class="error-message" id="firstNameError">First name is required.</div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Last Name <span class="required">*</span></label>
+                                <div class="input-with-icon">
+                                    <i class="fas fa-user input-icon"></i>
+                                    <input type="text" id="lastName" class="form-control" placeholder="Enter your last name" required>
+                                </div>
+                                <div class="error-message" id="lastNameError">Last name is required.</div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Email Address <span class="required">*</span></label>
+                                <div class="input-with-icon">
+                                    <i class="fas fa-envelope input-icon"></i>
+                                    <input type="email" id="email" class="form-control" placeholder="agent@example.com" required>
+                                </div>
+                                <div class="error-message" id="emailError">Please enter a valid email address.</div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Phone Number <span class="required">*</span></label>
+                                <div class="phone-input-container">
+                                    <select id="countryCode" class="country-code-select" required>
+                                        <option value="">Select Code</option>
+                                        <option value="+234">Nigeria (+234)</option>
+                                        <option value="+254">Kenya (+254)</option>
+                                        <option value="+233">Ghana (+233)</option>
+                                        <option value="+27">South Africa (+27)</option>
+                                    </select>
+                                    <div class="input-with-icon" style="flex: 1;">
+                                        <i class="fas fa-phone input-icon"></i>
+                                        <input type="tel" id="phoneNumber" class="phone-number-input" placeholder="Phone number" required>
+                                    </div>
+                                </div>
+                                <div class="error-message" id="phoneError">Please select country code and enter phone number.</div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Date of Birth <span class="required">*</span></label>
+                                <div class="input-with-icon">
+                                    <i class="fas fa-calendar input-icon"></i>
+                                    <input type="date" id="dateOfBirth" class="form-control" required>
+                                </div>
+                                <div class="error-message" id="dobError">You must be at least 21 years old to register as an agent.</div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Country <span class="required">*</span></label>
+                                <select id="country" class="form-select" required>
+                                    <option value="">Select Country</option>
+                                    <option value="NG">Nigeria</option>
+                                    <option value="KE">Kenya</option>
+                                    <option value="GH">Ghana</option>
+                                    <option value="ZA">South Africa</option>
+                                </select>
+                                <div class="error-message" id="countryError">Please select your country.</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Professional Information Section -->
+                    <div class="form-section" id="professionalSection">
+                        <h3 class="section-title">Professional Information</h3>
+                        <p class="section-subtitle">Details about your professional background and experience.</p>
+                        
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label">Years of Experience <span class="required">*</span></label>
+                                <select id="experience" class="form-select" required>
+                                    <option value="">Select Experience</option>
+                                    <option value="0-2">0-2 years</option>
+                                    <option value="3-5">3-5 years</option>
+                                    <option value="6-10">6-10 years</option>
+                                    <option value="10+">10+ years</option>
+                                </select>
+                                <div class="error-message" id="experienceError">Please select your experience level.</div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Specialization <span class="required">*</span></label>
+                                <select id="specialization" class="form-select" required>
+                                    <option value="">Select Specialization</option>
+                                    <option value="sports">Sports Betting</option>
+                                    <option value="casino">Casino Games</option>
+                                    <option value="poker">Poker</option>
+                                    <option value="horse-racing">Horse Racing</option>
+                                    <option value="esports">Esports</option>
+                                    <option value="general">General Agent</option>
+                                </select>
+                                <div class="error-message" id="specializationError">Please select your specialization.</div>
+                            </div>
+                            
+                            <div class="form-group full-width">
+                                <label class="form-label">Professional Bio</label>
+                                <textarea id="bio" class="form-control" rows="4" placeholder="Briefly describe your professional background, experience, and any relevant certifications..."></textarea>
+                                <div class="agent-id-hint">Maximum 500 characters. This will be visible to potential clients.</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- License & Verification -->
+                    <div class="form-section" id="licenseSection">
+                        <h3 class="section-title">License & Verification</h3>
+                        <p class="section-subtitle">Upload your professional license or certification for verification.</p>
+                        
+                        <div class="license-upload">
+                            <div class="upload-icon">
+                                <i class="fas fa-file-upload"></i>
+                            </div>
+                            <h4 class="upload-title">Upload License/Certification</h4>
+                            <p class="upload-text">Upload a clear scan or photo of your professional gambling agent license, certification, or relevant professional qualification.</p>
+                            
+                            <input type="file" id="licenseFileInput" accept=".pdf,.jpg,.jpeg,.png" style="display: none;">
+                            <button type="button" id="uploadLicenseBtn" class="upload-btn">
+                                <i class="fas fa-cloud-upload-alt"></i> Choose License File
+                            </button>
+                            
+                            <div class="upload-progress" id="licenseUploadProgress">
+                                <div class="upload-progress-bar" id="licenseProgressBar"></div>
+                            </div>
+                            
+                            <img id="licensePreview" class="license-preview" alt="License preview">
+                            
+                            <input type="hidden" id="licensePhotoUrl">
+                            <p class="upload-note">Accepted formats: PDF, JPG, PNG (Max size: 5MB)</p>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">License Number (if applicable)</label>
+                            <input type="text" id="licenseNumber" class="form-control" placeholder="Enter your professional license number">
+                        </div>
+                    </div>
+                    
+                    <!-- Account Security -->
+                    <div class="form-section" id="securitySection">
+                        <h3 class="section-title">Account Security</h3>
+                        <p class="section-subtitle">Set up your account password and security preferences.</p>
+                        
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label">Password <span class="required">*</span></label>
+                                <div class="input-with-icon">
+                                    <i class="fas fa-lock input-icon"></i>
+                                    <input type="password" id="password" class="form-control" placeholder="Create a strong password" required>
+                                    <i class="fas fa-eye password-toggle" id="togglePassword"></i>
+                                </div>
+                                <div class="error-message" id="passwordError">Password must be at least 8 characters with uppercase, lowercase, and numbers.</div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Confirm Password <span class="required">*</span></label>
+                                <div class="input-with-icon">
+                                    <i class="fas fa-lock input-icon"></i>
+                                    <input type="password" id="confirmPassword" class="form-control" placeholder="Confirm your password" required>
+                                    <i class="fas fa-eye password-toggle" id="toggleConfirmPassword"></i>
+                                </div>
+                                <div class="error-message" id="confirmError">Passwords do not match.</div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Security Question <span class="required">*</span></label>
+                            <select id="securityQuestion" class="form-select" required>
+                                <option value="">Choose a security question</option>
+                                <option value="pet">What was your first pet's name?</option>
+                                <option value="school">What was the name of your first school?</option>
+                                <option value="city">What city were you born in?</option>
+                                <option value="mother">What is your mother's maiden name?</option>
+                                <option value="car">What was your first car?</option>
+                            </select>
+                            <div class="error-message" id="securityQuestionError">Please select a security question.</div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Security Answer <span class="required">*</span></label>
+                            <div class="input-with-icon">
+                                <i class="fas fa-key input-icon"></i>
+                                <input type="text" id="securityAnswer" class="form-control" placeholder="Enter your answer" required>
+                            </div>
+                            <div class="error-message" id="securityAnswerError">Answer is required.</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Terms & Agreement -->
+                    <div class="form-section" id="termsSection">
+                        <div class="terms-container">
+                            <div class="terms-checkbox">
+                                <input type="checkbox" id="termsAgreement" required>
+                                <label class="terms-text">
+                                    I agree to the <a href="#" target="_blank">EnglaBet Agent Agreement</a>, <a href="#" target="_blank">Code of Conduct</a>, and confirm that all information provided is accurate. I understand that falsifying information may result in immediate termination of my agent status.
+                                </label>
+                            </div>
+                            
+                            <div class="terms-checkbox">
+                                <input type="checkbox" id="privacyPolicy" required>
+                                <label class="terms-text">
+                                    I have read and agree to the <a href="#" target="_blank">Privacy Policy</a> and consent to the processing of my personal data for verification purposes. I confirm I am at least 21 years old.
+                                </label>
+                            </div>
+                            
+                            <div class="terms-checkbox">
+                                <input type="checkbox" id="marketingConsent">
+                                <label class="terms-text">
+                                    I would like to receive marketing communications, updates, and promotional offers from EnglaBet Agent Network. (Optional)
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="submit-btn" id="submitBtn">
+                        <i class="fas fa-user-tie"></i> Complete Agent Registration
+                    </button>
+                </form>
+            </div>
+            
+            <!-- Success Screen -->
+            <div class="success-screen" id="successScreen">
+                <div class="success-icon success-pulse">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                
+                <h2 class="success-title">Registration Complete!</h2>
+                
+                <!-- Immediate Verification Section -->
+                <div class="immediate-verification">
+                    <div class="verification-icon">
+                        <i class="fas fa-envelope-circle-check"></i>
+                    </div>
+                    <h3 class="verification-title">Verification Email Sent Instantly!</h3>
+                    <p class="verification-text">
+                        We've sent a verification email to your inbox <strong>immediately</strong>. Please check your email now and click the verification link to activate your agent account.
+                    </p>
+                    
+                    <div class="email-verification-badge email-pending">
+                        <i class="fas fa-clock"></i> Email Verification Pending
+                    </div>
+                    
+                    <div class="check-email-list">
+                        <div class="check-email-item">
+                            <i class="fas fa-inbox"></i>
+                            <span>Check your <strong>inbox</strong> for the verification email</span>
+                        </div>
+                        <div class="check-email-item">
+                            <i class="fas fa-filter"></i>
+                            <span>Also check <strong>spam/junk</strong> folder if not found</span>
+                        </div>
+                        <div class="check-email-item">
+                            <i class="fas fa-bolt"></i>
+                            <span>Email was sent <strong>instantly</strong> - no waiting required</span>
+                        </div>
+                        <div class="check-email-item">
+                            <i class="fas fa-link"></i>
+                            <span>Click the <strong>verification link</strong> in the email</span>
+                        </div>
+                    </div>
+                    
+                    <div class="countdown-timer" id="countdownTimer">
+                        Next resend available in: <span id="resendCountdown">60</span> seconds
+                    </div>
+                    
+                    <button class="submit-btn" id="resendVerificationBtn" style="max-width: 300px; margin-top: 15px;">
+                        <i class="fas fa-paper-plane"></i> Resend Verification Email
+                    </button>
+                </div>
+                
+                <div class="agent-details">
+                    <div class="detail-row">
+                        <span class="detail-label">Application ID:</span>
+                        <span class="detail-value" id="successAppId">EB-AGT-20231215-XXXX</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Email:</span>
+                        <span class="detail-value" id="successEmail">agent@example.com</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Submitted:</span>
+                        <span class="detail-value" id="successTimestamp">Just Now</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Agent Status:</span>
+                        <span class="detail-value" style="color: var(--warning);">Pending Email Verification</span>
+                    </div>
+                </div>
+                
+                <p class="success-message">
+                    <i class="fas fa-info-circle" style="color: var(--accent);"></i> 
+                    <strong>Important:</strong> You must verify your email to access the agent dashboard and start earning commissions.
+                </p>
+                
+                <button class="submit-btn" id="checkVerificationBtn" style="max-width: 300px; margin-top: 10px; background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);">
+                    <i class="fas fa-sync-alt"></i> Check Verification Status
+                </button>
+                
+                <button class="copy-btn" id="backToDashboard" style="max-width: 300px; margin-top: 10px;">
+                    <i class="fas fa-tachometer-alt"></i> Go to Login
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        // Supabase Configuration
+        const SUPABASE_URL = 'https://sgtskerheqsfgiusdgaf.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_6Q1t_QlqdMv0o1E9fETjKg_D5XpBB2T';
+        
+        // Initialize Supabase client [citation:1]
+        const { createClient } = supabase;
+        const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        
+        // Storage bucket name
+        const STORAGE_BUCKET = 'EnglaBet';
+        
+        // Variables to store uploaded URLs
+        let profilePhotoUrl = null;
+        let licensePhotoUrl = null;
+        let resendTimer = null;
+        let resendCooldown = 60; // seconds
+        let canResend = false;
+        let currentUserEmail = '';
+        let currentUserId = null;
+        
+        // Country Code and Country Mapping
+        const countryData = {
+            'NG': { name: 'Nigeria', code: '+234' },
+            'KE': { name: 'Kenya', code: '+254' },
+            'GH': { name: 'Ghana', code: '+233' },
+            'ZA': { name: 'South Africa', code: '+27' }
+        };
+        
+        // Initialize when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeEventListeners();
+            updateAgentIdDisplay();
+            syncCountryAndCode();
+        });
+        
+        function initializeEventListeners() {
+            // File upload buttons
+            document.getElementById('uploadPhotoBtn').addEventListener('click', () => {
+                document.getElementById('profilePhotoInput').click();
+            });
+            
+            document.getElementById('uploadLicenseBtn').addEventListener('click', () => {
+                document.getElementById('licenseFileInput').click();
+            });
+            
+            // File input change events
+            document.getElementById('profilePhotoInput').addEventListener('change', handleProfilePhotoUpload);
+            document.getElementById('licenseFileInput').addEventListener('change', handleLicenseFileUpload);
+            
+            // Click on photo preview to upload
+            document.getElementById('photoPreview').addEventListener('click', () => {
+                document.getElementById('profilePhotoInput').click();
+            });
+            
+            // Name inputs for Agent ID generation
+            document.getElementById('firstName').addEventListener('input', updateAgentIdDisplay);
+            document.getElementById('lastName').addEventListener('input', updateAgentIdDisplay);
+            
+            // Password toggles
+            document.getElementById('togglePassword').addEventListener('click', () => {
+                togglePasswordVisibility('password', 'togglePassword');
+            });
+            
+            document.getElementById('toggleConfirmPassword').addEventListener('click', () => {
+                togglePasswordVisibility('confirmPassword', 'toggleConfirmPassword');
+            });
+            
+            // Form submission
+            document.getElementById('agentSignupForm').addEventListener('submit', handleFormSubmit);
+            
+            // Copy Agent ID
+            document.getElementById('copyAgentIdBtn').addEventListener('click', copyAgentId);
+            
+            // Email modal buttons
+            document.getElementById('goToLoginBtn').addEventListener('click', handleGoToLogin);
+            document.getElementById('resetPasswordBtn').addEventListener('click', handlePasswordReset);
+            document.getElementById('useDifferentEmailBtn').addEventListener('click', handleUseDifferentEmail);
+            
+            // Success screen buttons
+            document.getElementById('resendVerificationBtn').addEventListener('click', resendVerificationEmail);
+            document.getElementById('checkVerificationBtn').addEventListener('click', checkVerificationStatus);
+            document.getElementById('backToDashboard').addEventListener('click', () => {
+                alert('Please verify your email first to access the agent dashboard.');
+            });
+            
+            // Close modal when clicking outside
+            document.getElementById('emailRegisteredModal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    hideEmailRegisteredModal();
+                }
+            });
+        }
+        
+        // Helper function to scroll to element with smooth animation
+        function scrollToElement(element, offset = 100) {
+            const elementPosition = element.getBoundingClientRect().top;
+            const offsetPosition = elementPosition + window.pageYOffset - offset;
+            
+            window.scrollTo({
+                top: offsetPosition,
+                behavior: 'smooth'
+            });
+            
+            // Add error highlight animation
+            element.classList.add('error-highlight');
+            setTimeout(() => {
+                element.classList.remove('error-highlight');
+            }, 1000);
+        }
+        
+        // Show email already registered modal
+        function showEmailRegisteredModal(email) {
+            document.getElementById('registeredEmailDisplay').textContent = email;
+            document.getElementById('emailRegisteredModal').style.display = 'flex';
+            currentUserEmail = email;
+        }
+        
+        // Hide email already registered modal
+        function hideEmailRegisteredModal() {
+            document.getElementById('emailRegisteredModal').style.display = 'none';
+        }
+        
+        // Sync Country and Country Code selection
+        function syncCountryAndCode() {
+            const countrySelect = document.getElementById('country');
+            const countryCodeSelect = document.getElementById('countryCode');
+            
+            // When country changes, update country code
+            countrySelect.addEventListener('change', function() {
+                const selectedCountry = this.value;
+                if (selectedCountry && countryData[selectedCountry]) {
+                    countryCodeSelect.value = countryData[selectedCountry].code;
+                }
+            });
+            
+            // When country code changes, update country
+            countryCodeSelect.addEventListener('change', function() {
+                const selectedCode = this.value;
+                // Find country matching this code
+                for (const [countryCode, data] of Object.entries(countryData)) {
+                    if (data.code === selectedCode) {
+                        countrySelect.value = countryCode;
+                        break;
+                    }
+                }
+            });
+        }
+        
+        // Generate Unique Agent ID using timestamp and random component
+        function generateAgentId(firstName, lastName) {
+            const timestamp = Date.now().toString(36).toUpperCase();
+            const randomPart = Math.random().toString(36).substring(2, 6).toUpperCase();
+            const nameInitials = (firstName.charAt(0) + lastName.charAt(0)).toUpperCase();
+            
+            return `EB-AGT-${nameInitials}-${timestamp.slice(-4)}-${randomPart}`;
+        }
+        
+        // Generate Application ID
+        function generateApplicationId() {
+            const date = new Date();
+            const dateStr = date.getFullYear() + 
+                          String(date.getMonth() + 1).padStart(2, '0') + 
+                          String(date.getDate()).padStart(2, '0');
+            const randomNum = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+            return `EB-APP-${dateStr}-${randomNum}`;
+        }
+        
+        // Update Agent ID Display
+        function updateAgentIdDisplay() {
+            const firstName = document.getElementById('firstName').value.trim();
+            const lastName = document.getElementById('lastName').value.trim();
+            
+            if (firstName && lastName) {
+                const agentId = generateAgentId(firstName, lastName);
+                document.getElementById('agentIdDisplay').textContent = agentId;
+            }
+        }
+        
+        // Toggle password visibility
+        function togglePasswordVisibility(inputId, toggleId) {
+            const input = document.getElementById(inputId);
+            const toggle = document.getElementById(toggleId);
+            const type = input.type === 'password' ? 'text' : 'password';
+            input.type = type;
+            toggle.classList.toggle('fa-eye');
+            toggle.classList.toggle('fa-eye-slash');
+        }
+        
+        // Upload profile photo to Supabase Storage [citation:1][citation:6]
+        async function handleProfilePhotoUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            // Validate file type and size
+            const validTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+            const maxSize = 5 * 1024 * 1024; // 5MB
+            
+            if (!validTypes.includes(file.type)) {
+                alert('Please upload a JPG or PNG image.');
+                return;
+            }
+            
+            if (file.size > maxSize) {
+                alert('File size must be less than 5MB.');
+                return;
+            }
+            
+            const uploadBtn = document.getElementById('uploadPhotoBtn');
+            const progressBar = document.getElementById('profileProgressBar');
+            const progressContainer = document.getElementById('profileUploadProgress');
+            
+            // Show progress bar
+            progressContainer.style.display = 'block';
+            progressBar.style.width = '0%';
+            uploadBtn.disabled = true;
+            uploadBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading...';
+            
+            try {
+                // Generate unique filename
+                const timestamp = Date.now();
+                const fileName = `profile-${timestamp}-${file.name}`;
+                const filePath = `profile-photos/${fileName}`;
+                
+                // Upload to Supabase Storage [citation:6]
+                const { data, error } = await supabaseClient.storage
+                    .from(STORAGE_BUCKET)
+                    .upload(filePath, file, {
+                        cacheControl: '3600',
+                        upsert: true,
+                        contentType: file.type
+                    });
+                
+                if (error) throw error;
+                
+                // Get public URL
+                const { data: urlData } = supabaseClient.storage
+                    .from(STORAGE_BUCKET)
+                    .getPublicUrl(filePath);
+                
+                profilePhotoUrl = urlData.publicUrl;
+                document.getElementById('profilePhotoUrl').value = profilePhotoUrl;
+                
+                // Update preview
+                const preview = document.getElementById('photoPreview');
+                preview.src = URL.createObjectURL(file);
+                
+                // Update button
+                uploadBtn.innerHTML = '<i class="fas fa-check"></i> Photo Uploaded';
+                uploadBtn.style.background = 'linear-gradient(135deg, #2ecc71 0%, #27ae60 100%)';
+                hideError('photoPreview', 'photoError');
+                
+                // Hide progress bar
+                setTimeout(() => {
+                    progressContainer.style.display = 'none';
+                    uploadBtn.disabled = false;
+                }, 1000);
+                
+                console.log('Profile photo uploaded successfully:', profilePhotoUrl);
+                
+            } catch (error) {
+                console.error('Error uploading profile photo:', error);
+                alert('Failed to upload profile photo. Please try again.');
+                
+                // Reset button
+                uploadBtn.innerHTML = '<i class="fas fa-camera"></i> Upload Profile Photo';
+                uploadBtn.disabled = false;
+                progressContainer.style.display = 'none';
+            }
+        }
+        
+        // Upload license file to Supabase Storage
+        async function handleLicenseFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            // Validate file type and size
+            const validTypes = ['application/pdf', 'image/jpeg', 'image/png', 'image/jpg'];
+            const maxSize = 5 * 1024 * 1024; // 5MB
+            
+            if (!validTypes.includes(file.type)) {
+                alert('Please upload a PDF, JPG, or PNG file.');
+                return;
+            }
+            
+            if (file.size > maxSize) {
+                alert('File size must be less than 5MB.');
+                return;
+            }
+            
+            const uploadBtn = document.getElementById('uploadLicenseBtn');
+            const progressBar = document.getElementById('licenseProgressBar');
+            const progressContainer = document.getElementById('licenseUploadProgress');
+            const preview = document.getElementById('licensePreview');
+            
+            // Show progress bar
+            progressContainer.style.display = 'block';
+            progressBar.style.width = '0%';
+            uploadBtn.disabled = true;
+            uploadBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading...';
+            
+            try {
+                // Generate unique filename
+                const timestamp = Date.now();
+                const fileName = `license-${timestamp}-${file.name}`;
+                const filePath = `license-files/${fileName}`;
+                
+                // Upload to Supabase Storage [citation:6]
+                const { data, error } = await supabaseClient.storage
+                    .from(STORAGE_BUCKET)
+                    .upload(filePath, file, {
+                        cacheControl: '3600',
+                        upsert: true,
+                        contentType: file.type
+                    });
+                
+                if (error) throw error;
+                
+                // Get public URL
+                const { data: urlData } = supabaseClient.storage
+                    .from(STORAGE_BUCKET)
+                    .getPublicUrl(filePath);
+                
+                licensePhotoUrl = urlData.publicUrl;
+                document.getElementById('licensePhotoUrl').value = licensePhotoUrl;
+                
+                // Update preview for images
+                if (file.type.startsWith('image/')) {
+                    preview.src = URL.createObjectURL(file);
+                    preview.style.display = 'block';
+                } else {
+                    preview.style.display = 'none';
+                }
+                
+                // Update button
+                uploadBtn.innerHTML = '<i class="fas fa-check"></i> File Uploaded';
+                uploadBtn.style.background = 'linear-gradient(135deg, #2ecc71 0%, #27ae60 100%)';
+                
+                // Hide progress bar
+                setTimeout(() => {
+                    progressContainer.style.display = 'none';
+                    uploadBtn.disabled = false;
+                }, 1000);
+                
+                console.log('License file uploaded successfully:', licensePhotoUrl);
+                
+            } catch (error) {
+                console.error('Error uploading license file:', error);
+                alert('Failed to upload license file. Please try again.');
+                
+                // Reset button
+                uploadBtn.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> Choose License File';
+                uploadBtn.disabled = false;
+                progressContainer.style.display = 'none';
+            }
+        }
+        
+        // Helper to show error
+        function showError(inputId, errorId, message, scrollTo = true) {
+            const input = document.getElementById(inputId);
+            if (input) {
+                input.classList.add('error');
+                
+                // If we should scroll to the error
+                if (scrollTo) {
+                    setTimeout(() => {
+                        scrollToElement(input);
+                    }, 100);
+                }
+            }
+            
+            // Also handle country code and phone number separately
+            if (inputId === 'countryCode' || inputId === 'phoneNumber') {
+                const container = input.closest('.phone-input-container');
+                if (container) {
+                    container.querySelectorAll('select, input').forEach(el => el.classList.add('error'));
+                }
+            }
+            
+            const error = document.getElementById(errorId);
+            if (error) {
+                error.textContent = message;
+                error.style.display = 'block';
+            }
+        }
+        
+        // Helper to hide error
+        function hideError(inputId, errorId) {
+            const input = document.getElementById(inputId);
+            if (input) {
+                input.classList.remove('error');
+            }
+            
+            // Also handle country code and phone number separately
+            if (inputId === 'countryCode' || inputId === 'phoneNumber') {
+                const container = input.closest('.phone-input-container');
+                if (container) {
+                    container.querySelectorAll('select, input').forEach(el => el.classList.remove('error'));
+                }
+            }
+            
+            const error = document.getElementById(errorId);
+            if (error) {
+                error.style.display = 'none';
+            }
+        }
+        
+        // Validate phone number format
+        function validatePhoneNumber(phoneNumber, countryCode) {
+            const cleanNumber = phoneNumber.replace(/\D/g, '');
+            
+            if (!cleanNumber || cleanNumber.length < 7) {
+                return false;
+            }
+            
+            return true;
+        }
+        
+        // Validate form and return first error element
+        function validateForm() {
+            let isValid = true;
+            let firstErrorElement = null;
+            
+            // Reset errors
+            document.querySelectorAll('.error-message').forEach(el => el.style.display = 'none');
+            document.querySelectorAll('.form-control, .form-select, .country-code-select, .phone-number-input').forEach(el => el.classList.remove('error'));
+            
+            // Validate profile photo
+            if (!profilePhotoUrl) {
+                showError('photoPreview', 'photoError', 'Profile photo is required.', false);
+                if (!firstErrorElement) firstErrorElement = document.getElementById('photoPreview');
+                isValid = false;
+            } else {
+                hideError('photoPreview', 'photoError');
+            }
+            
+            // Validate first name
+            const firstName = document.getElementById('firstName').value.trim();
+            if (!firstName) {
+                showError('firstName', 'firstNameError', 'First name is required.', false);
+                if (!firstErrorElement) firstErrorElement = document.getElementById('firstName');
+                isValid = false;
+            } else {
+                hideError('firstName', 'firstNameError');
+            }
+            
+            // Validate last name
+            const lastName = document.getElementById('lastName').value.trim();
+            if (!lastName) {
+                showError('lastName', 'lastNameError', 'Last name is required.', false);
+                if (!firstErrorElement) firstErrorElement = document.getElementById('lastName');
+                isValid = false;
+            } else {
+                hideError('lastName', 'lastNameError');
+            }
+            
+            // Validate email
+            const email = document.getElementById('email').value.trim();
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                showError('email', 'emailError', 'Please enter a valid email address.', false);
+                if (!firstErrorElement) firstErrorElement = document.getElementById('email');
+                isValid = false;
+            } else {
+                hideError('email', 'emailError');
+            }
+            
+            // Validate phone number with country code
+            const countryCode = document.getElementById('countryCode').value;
+            const phoneNumber = document.getElementById('phoneNumber').value.trim();
+            
+            if (!countryCode) {
+                showError('countryCode', 'phoneError', 'Please select country code.', false);
+                if (!firstErrorElement) firstErrorElement = document.getElementById('countryCode');
+                isValid = false;
+            } else if (!phoneNumber) {
+                showError('phoneNumber', 'phoneError', 'Please enter phone number.', false);
+                if (!firstErrorElement) firstErrorElement = document.getElementById('phoneNumber');
+                isValid = false;
+            } else if (!validatePhoneNumber(phoneNumber, countryCode)) {
+                showError('phoneNumber', 'phoneError', 'Please enter a valid phone number.', false);
+                if (!firstErrorElement) firstErrorElement = document.getElementById('phoneNumber');
+                isValid = false;
+            } else {
+                hideError('countryCode', 'phoneError');
+                hideError('phoneNumber', 'phoneError');
+            }
+            
+            // Validate date of birth (must be 21+)
+            const dob = document.getElementById('dateOfBirth').value;
+            if (!dob) {
+                showError('dateOfBirth', 'dobError', 'Date of birth is required.', false);
+                if (!firstErrorElement) firstErrorElement = document.getElementById('dateOfBirth');
+                isValid = false;
+            } else {
+                const birthDate = new Date(dob);
+                const today = new Date();
+                let age = today.getFullYear() - birthDate.getFullYear();
+                const monthDiff = today.getMonth() - birthDate.getMonth();
+                if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+                    age--;
+                }
+                
+                if (age < 21) {
+                    showError('dateOfBirth', 'dobError', 'You must be at least 21 years old to register as an agent.', false);
+                    if (!firstErrorElement) firstErrorElement = document.getElementById('dateOfBirth');
+                    isValid = false;
+                } else {
+                    hideError('dateOfBirth', 'dobError');
+                }
+            }
+            
+            // Validate country
+            const country = document.getElementById('country').value;
+            if (!country) {
+                showError('country', 'countryError', 'Please select your country.', false);
+                if (!firstErrorElement) firstErrorElement = document.getElementById('country');
+                isValid = false;
+            } else {
+                hideError('country', 'countryError');
+            }
+            
+            // Validate experience
+            const experience = document.getElementById('experience').value;
+            if (!experience) {
+                showError('experience', 'experienceError', 'Please select your experience level.', false);
+                if (!firstErrorElement) firstErrorElement = document.getElementById('experience');
+                isValid = false;
+            } else {
+                hideError('experience', 'experienceError');
+            }
+            
+            // Validate specialization
+            const specialization = document.getElementById('specialization').value;
+            if (!specialization) {
+                showError('specialization', 'specializationError', 'Please select your specialization.', false);
+                if (!firstErrorElement) firstErrorElement = document.getElementById('specialization');
+                isValid = false;
+            } else {
+                hideError('specialization', 'specializationError');
+            }
+            
+            // Validate password
+            const password = document.getElementById('password').value;
+            const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+            if (!passwordRegex.test(password)) {
+                showError('password', 'passwordError', 'Password must be at least 8 characters with uppercase, lowercase, and numbers.', false);
+                if (!firstErrorElement) firstErrorElement = document.getElementById('password');
+                isValid = false;
+            } else {
+                hideError('password', 'passwordError');
+            }
+            
+            // Validate confirm password
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            if (password !== confirmPassword) {
+                showError('confirmPassword', 'confirmError', 'Passwords do not match.', false);
+                if (!firstErrorElement) firstErrorElement = document.getElementById('confirmPassword');
+                isValid = false;
+            } else {
+                hideError('confirmPassword', 'confirmError');
+            }
+            
+            // Validate security question
+            const securityQuestion = document.getElementById('securityQuestion').value;
+            if (!securityQuestion) {
+                showError('securityQuestion', 'securityQuestionError', 'Please select a security question.', false);
+                if (!firstErrorElement) firstErrorElement = document.getElementById('securityQuestion');
+                isValid = false;
+            } else {
+                hideError('securityQuestion', 'securityQuestionError');
+            }
+            
+            // Validate security answer
+            const securityAnswer = document.getElementById('securityAnswer').value.trim();
+            if (!securityAnswer) {
+                showError('securityAnswer', 'securityAnswerError', 'Security answer is required.', false);
+                if (!firstErrorElement) firstErrorElement = document.getElementById('securityAnswer');
+                isValid = false;
+            } else {
+                hideError('securityAnswer', 'securityAnswerError');
+            }
+            
+            // Validate terms
+            const termsAgreement = document.getElementById('termsAgreement').checked;
+            const privacyPolicy = document.getElementById('privacyPolicy').checked;
+            
+            if (!termsAgreement || !privacyPolicy) {
+                alert('You must agree to the Agent Agreement and Privacy Policy to continue.');
+                if (!firstErrorElement) firstErrorElement = document.getElementById('termsAgreement').closest('.terms-container');
+                isValid = false;
+            }
+            
+            // If there are errors, scroll to the first one
+            if (!isValid && firstErrorElement) {
+                setTimeout(() => {
+                    scrollToElement(firstErrorElement);
+                }, 100);
+            }
+            
+            return isValid;
+        }
+        
+        // Save agent data to Supabase
+        async function saveAgentData(userId, agentData) {
+            try {
+                const { data, error } = await supabaseClient
+                    .from('englabet')
+                    .insert([{
+                        agents: agentData,
+                        created_at: new Date().toISOString()
+                    }])
+                    .select();
+                
+                if (error) throw error;
+                return data;
+            } catch (error) {
+                console.error('Error saving agent data:', error);
+                throw error;
+            }
+        }
+        
+        // Check if email already exists
+        async function checkEmailExists(email) {
+            try {
+                const { data, error } = await supabaseClient
+                    .from('englabet')
+                    .select('agents')
+                    .contains('agents', { email: email });
+                
+                if (error) throw error;
+                return data && data.length > 0;
+            } catch (error) {
+                console.error('Error checking email:', error);
+                return false;
+            }
+        }
+        
+        // Handle form submission
+        async function handleFormSubmit(e) {
+            e.preventDefault();
+            
+            if (!validateForm()) {
+                return;
+            }
+            
+            const submitBtn = document.getElementById('submitBtn');
+            const originalBtnText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<span class="loading-spinner"></span> Processing Registration...';
+            submitBtn.disabled = true;
+            
+            try {
+                // Get form values
+                const firstName = document.getElementById('firstName').value.trim();
+                const lastName = document.getElementById('lastName').value.trim();
+                const email = document.getElementById('email').value.trim();
+                const countryCode = document.getElementById('countryCode').value;
+                const phoneNumber = document.getElementById('phoneNumber').value.trim();
+                const fullPhone = `${countryCode}${phoneNumber.replace(/\D/g, '')}`;
+                const dateOfBirth = document.getElementById('dateOfBirth').value;
+                const country = document.getElementById('country').value;
+                const experience = document.getElementById('experience').value;
+                const specialization = document.getElementById('specialization').value;
+                const bio = document.getElementById('bio').value.trim();
+                const licenseNumber = document.getElementById('licenseNumber').value.trim();
+                const password = document.getElementById('password').value;
+                const securityQuestion = document.getElementById('securityQuestion').value;
+                const securityAnswer = document.getElementById('securityAnswer').value.trim();
+                const marketingConsent = document.getElementById('marketingConsent').checked;
+                
+                const displayName = `${firstName} ${lastName}`;
+                const agentId = generateAgentId(firstName, lastName);
+                const applicationId = generateApplicationId();
+                
+                // Get country name from code
+                const countryName = countryData[country] ? countryData[country].name : country;
+                
+                // Check if email already exists
+                submitBtn.innerHTML = '<span class="loading-spinner"></span> Checking Email...';
+                const emailExists = await checkEmailExists(email);
+                
+                if (emailExists) {
+                    showEmailRegisteredModal(email);
+                    submitBtn.innerHTML = originalBtnText;
+                    submitBtn.disabled = false;
+                    return;
+                }
+                
+                // Create user with Supabase Auth
+                submitBtn.innerHTML = '<span class="loading-spinner"></span> Creating Account...';
+                const { data: authData, error: authError } = await supabaseClient.auth.signUp({
+                    email: email,
+                    password: password,
+                    options: {
+                        data: {
+                            first_name: firstName,
+                            last_name: lastName,
+                            display_name: displayName,
+                            phone: fullPhone,
+                            country: countryName,
+                            agent_id: agentId,
+                            profile_photo: profilePhotoUrl
+                        },
+                        emailRedirectTo: `${window.location.origin}/agent-dashboard.html`
+                    }
+                });
+                
+                if (authError) {
+                    if (authError.message.includes('already registered')) {
+                        showEmailRegisteredModal(email);
+                        submitBtn.innerHTML = originalBtnText;
+                        submitBtn.disabled = false;
+                        return;
+                    }
+                    throw authError;
+                }
+                
+                currentUserId = authData.user.id;
+                
+                // Calculate age
+                const birthDate = new Date(dateOfBirth);
+                const today = new Date();
+                let age = today.getFullYear() - birthDate.getFullYear();
+                const monthDiff = today.getMonth() - birthDate.getMonth();
+                if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+                    age--;
+                }
+                
+                // Prepare agent data object
+                const agentData = {
+                    // Personal Information
+                    firstName,
+                    lastName,
+                    email,
+                    phone: fullPhone,
+                    countryCode,
+                    phoneNumber: phoneNumber.replace(/\D/g, ''),
+                    dateOfBirth,
+                    age,
+                    country,
+                    countryName,
+                    
+                    // Profile Photo
+                    profilePhoto: profilePhotoUrl,
+                    
+                    // Professional Information
+                    experience,
+                    specialization,
+                    bio: bio || '',
+                    licenseNumber: licenseNumber || '',
+                    licenseUrl: licensePhotoUrl || '',
+                    
+                    // Account Information
+                    agentId,
+                    applicationId,
+                    userId: currentUserId,
+                    displayName,
+                    emailVerified: false,
+                    status: 'pending_verification',
+                    registrationDate: new Date().toISOString(),
+                    
+                    // Security
+                    securityQuestion,
+                    securityAnswer,
+                    
+                    // Preferences
+                    marketingConsent,
+                    
+                    // Agent-specific fields
+                    commissionRate: 15.0,
+                    clientCount: 0,
+                    totalCommission: 0.00,
+                    rating: 0,
+                    reviews: [],
+                    
+                    // System fields
+                    lastActive: new Date().toISOString(),
+                    createdAt: new Date().toISOString()
+                };
+                
+                // Save agent data to Supabase database [citation:1]
+                submitBtn.innerHTML = '<span class="loading-spinner"></span> Saving Agent Data...';
+                const savedData = await saveAgentData(currentUserId, agentData);
+                
+                if (!savedData) {
+                    throw new Error('Failed to save agent data');
+                }
+                
+                // Show success screen
+                document.getElementById('signupFormContainer').style.display = 'none';
+                document.getElementById('successScreen').style.display = 'block';
+                
+                // Update success screen details
+                document.getElementById('successAppId').textContent = applicationId;
+                document.getElementById('successEmail').textContent = email;
+                document.getElementById('successTimestamp').textContent = new Date().toLocaleString();
+                
+                // Start resend timer
+                startResendTimer();
+                
+                console.log('Agent registration successful:', { 
+                    agentId, 
+                    email, 
+                    applicationId, 
+                    country: countryName,
+                    profilePhotoUrl,
+                    licensePhotoUrl,
+                    userId: currentUserId
+                });
+                
+                // Set up auth state listener for verification updates
+                supabaseClient.auth.onAuthStateChange((event, session) => {
+                    if (event === 'USER_UPDATED') {
+                        console.log('User updated, email verified:', session?.user?.email_confirmed_at);
+                    }
+                });
+                
+            } catch (error) {
+                console.error('Error during agent registration:', error);
+                
+                // Handle specific error cases
+                if (error.message.includes('already registered') || error.message.includes('User already registered')) {
+                    const email = document.getElementById('email').value.trim();
+                    showEmailRegisteredModal(email);
+                } else if (error.message.includes('Invalid email')) {
+                    showError('email', 'emailError', 'Invalid email address format.', true);
+                    alert('Please enter a valid email address.');
+                } else if (error.message.includes('Password should be at least')) {
+                    showError('password', 'passwordError', 'Password is too weak. Please use a stronger password.', true);
+                    alert('Password is too weak. Please use at least 8 characters with uppercase, lowercase, and numbers.');
+                } else if (error.message.includes('network')) {
+                    alert('Network error. Please check your internet connection and try again.');
+                } else {
+                    alert('An error occurred during registration: ' + error.message);
+                }
+                
+                // Reset submit button
+                submitBtn.innerHTML = originalBtnText;
+                submitBtn.disabled = false;
+            }
+        }
+        
+        // Start resend countdown timer
+        function startResendTimer() {
+            const countdownElement = document.getElementById('resendCountdown');
+            const resendBtn = document.getElementById('resendVerificationBtn');
+            
+            canResend = false;
+            resendBtn.disabled = true;
+            resendBtn.innerHTML = '<i class="fas fa-clock"></i> Wait to Resend';
+            
+            let timeLeft = resendCooldown;
+            
+            resendTimer = setInterval(() => {
+                timeLeft--;
+                countdownElement.textContent = timeLeft;
+                
+                if (timeLeft <= 0) {
+                    clearInterval(resendTimer);
+                    canResend = true;
+                    resendBtn.disabled = false;
+                    resendBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Resend Verification Email';
+                    countdownElement.textContent = 'Ready!';
+                }
+            }, 1000);
+        }
+        
+        // Resend verification email function
+        async function resendVerificationEmail() {
+            if (!canResend) {
+                alert('Please wait before resending. Check your spam folder first.');
+                return;
+            }
+            
+            const btn = document.getElementById('resendVerificationBtn');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+            btn.disabled = true;
+            
+            try {
+                const { error } = await supabaseClient.auth.resend({
+                    type: 'signup',
+                    email: document.getElementById('successEmail').textContent
+                });
+                
+                if (error) throw error;
+                
+                alert('✅ Verification email resent successfully! Please check your inbox immediately.');
+                startResendTimer(); // Restart the cooldown timer
+            } catch (error) {
+                console.error('Error resending verification:', error);
+                alert('Failed to resend verification email. Please try again.');
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        }
+        
+        // Check verification status
+        async function checkVerificationStatus() {
+            const btn = document.getElementById('checkVerificationBtn');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Checking...';
+            
+            try {
+                // Get current session
+                const { data: { session }, error: sessionError } = await supabaseClient.auth.getSession();
+                
+                if (sessionError) throw sessionError;
+                
+                if (session?.user?.email_confirmed_at) {
+                    // Update agent status in database
+                    const { error: updateError } = await supabaseClient
+                        .from('englabet')
+                        .update({ 
+                            agents: { 
+                                emailVerified: true,
+                                status: 'approved',
+                                verificationDate: new Date().toISOString()
+                            }
+                        })
+                        .eq('agents->userId', session.user.id);
+                    
+                    if (updateError) throw updateError;
+                    
+                    alert('🎉 Email verified successfully! Your agent account is now active.');
+                    
+                    // Update UI
+                    const badge = document.querySelector('.email-verification-badge');
+                    if (badge) {
+                        badge.className = 'email-verification-badge email-verified';
+                        badge.innerHTML = '<i class="fas fa-check-circle"></i> Email Verified';
+                    }
+                    
+                    // Update agent status in details
+                    const statusElement = document.querySelector('.detail-row:last-child .detail-value');
+                    if (statusElement) {
+                        statusElement.textContent = 'Active - Ready to Earn';
+                        statusElement.style.color = 'var(--success)';
+                    }
+                    
+                    btn.innerHTML = '<i class="fas fa-check"></i> Verified! Go to Dashboard';
+                    btn.onclick = () => {
+                        window.location.href = 'agent-dashboard.html';
+                    };
+                    
+                } else {
+                    alert('Email not verified yet. Please check your inbox and click the verification link.');
+                    btn.innerHTML = originalText;
+                }
+            } catch (error) {
+                console.error('Error checking verification:', error);
+                alert('Error checking verification status. Please try again.');
+                btn.innerHTML = originalText;
+            }
+        }
+        
+        // Handle email already registered - go to login
+        async function handleGoToLogin() {
+            const email = currentUserEmail;
+            const password = prompt(`Please enter your password for ${email}:`, '');
+            
+            if (!password) {
+                return;
+            }
+            
+            try {
+                const { data, error } = await supabaseClient.auth.signInWithPassword({
+                    email: email,
+                    password: password
+                });
+                
+                if (error) throw error;
+                
+                // Check if user is an agent in database
+                const { data: agentData, error: agentError } = await supabaseClient
+                    .from('englabet')
+                    .select('agents')
+                    .eq('agents->email', email)
+                    .single();
+                
+                if (agentError || !agentData) {
+                    // User exists but not as agent, show registration form
+                    alert('You have an account but not as an agent. Please complete agent registration.');
+                    hideEmailRegisteredModal();
+                } else {
+                    // User is already an agent, redirect to dashboard
+                    alert('Login successful! Redirecting to agent dashboard...');
+                    window.location.href = 'agent-dashboard.html';
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                
+                if (error.message.includes('Invalid login credentials')) {
+                    alert('Incorrect password. Please try again or reset your password.');
+                } else if (error.message.includes('Email not confirmed')) {
+                    alert('Please verify your email first. Check your inbox for the verification link.');
+                } else {
+                    alert('Login failed. Please try again.');
+                }
+            }
+        }
+        
+        // Handle password reset
+        async function handlePasswordReset() {
+            const email = currentUserEmail;
+            
+            try {
+                const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
+                    redirectTo: `${window.location.origin}/reset-password.html`
+                });
+                
+                if (error) throw error;
+                
+                alert(`Password reset email sent to ${email}. Please check your inbox and follow the instructions.`);
+                hideEmailRegisteredModal();
+            } catch (error) {
+                console.error('Password reset error:', error);
+                alert('Failed to send password reset email. Please try again.');
+            }
+        }
+        
+        // Handle use different email
+        function handleUseDifferentEmail() {
+            hideEmailRegisteredModal();
+            // Clear the email field and focus on it
+            const emailInput = document.getElementById('email');
+            emailInput.value = '';
+            emailInput.focus();
+        }
+        
+        // Copy Agent ID to clipboard
+        function copyAgentId() {
+            const agentId = document.getElementById('agentIdDisplay').textContent;
+            navigator.clipboard.writeText(agentId).then(() => {
+                const btn = document.getElementById('copyAgentIdBtn');
+                const originalHtml = btn.innerHTML;
+                btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                setTimeout(() => {
+                    btn.innerHTML = originalHtml;
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy: ', err);
+            });
+        }
+    </script>
+</body>
+</html>

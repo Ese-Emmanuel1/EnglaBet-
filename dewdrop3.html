@@ -1,0 +1,2108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <title>3 Letters Word Bet</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+
+  <style>
+    :root{
+      --bg1:#006aa6;
+      --bg2:#003f63;
+      --panel:#012a3f;
+      --mint:#a8e6cf;
+      --mint-2:#6ed3cf;
+      --ink:#032538;
+      --good:#19c37d;
+      --bad:#f25f5c;
+      --chip:#0a3a53;
+      --txt:#e8fbff;
+      --glow:0 20px 50px rgba(0,0,0,.35);
+      --ring:#bfeee0;
+    }
+
+    *{box-sizing:border-box;margin:0;padding:0}
+    html,body{height:100%; overflow-x: hidden;}
+    body{
+      font-family: Inter, ui-sans-serif, system-ui, "Segoe UI", Roboto, Helvetica, Arial;
+      color:var(--txt);
+      background:
+        radial-gradient(1200px 700px at 15% -10%, #0287cc 0%, #015f91 35%, #003a58 100%),
+        linear-gradient(135deg,var(--bg1),var(--bg2));
+      background-attachment: fixed;
+      padding:10px;
+      overflow-x:hidden;
+      font-size:14px;
+      min-height: 100vh;
+    }
+
+    /* animated ocean gradient sheen */
+    body::before{
+      content:""; position:fixed; inset:-20%;
+      background: conic-gradient(from 180deg at 50% 50%, rgba(255,255,255,.06), rgba(255,255,255,0) 35%, rgba(255,255,255,.07) 55%, rgba(255,255,255,0) 85%);
+      filter: blur(60px);
+      animation: drift 26s linear infinite;
+      pointer-events:none; z-index:0;
+      opacity:.5;
+    }
+    @keyframes drift{to{transform:rotate(360deg)}}
+
+    /* floating bubbles */
+    .bubbles{ position:fixed; inset:0; overflow:hidden; pointer-events:none; z-index:1; }
+    .bubble{
+      position:absolute; bottom:-120px; border-radius:999px; opacity:.15;
+      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,.9), rgba(255,255,255,.2) 40%, rgba(255,255,255,0) 65%);
+      filter: blur(0.2px);
+      animation: rise var(--dur) linear infinite, sway calc(var(--dur)*.6) ease-in-out infinite;
+    }
+    @keyframes rise{ to { transform: translateY(-115vh) translateZ(0) } }
+    @keyframes sway{ 50% { transform: translateX(18px) } }
+
+    .container{max-width:100%;margin:0 auto;display:flex;flex-direction:column;gap:12px; position:relative; z-index:2;}
+
+    /* top nav */
+    .nav{
+      display:flex; align-items:center; gap:8px; justify-content:space-between;
+      background:rgba(0,33,51,.55);
+      border:1px solid rgba(255,255,255,.08);
+      backdrop-filter: blur(6px);
+      padding:8px 10px; border-radius:12px; box-shadow: var(--glow);
+      flex-wrap: wrap;
+    }
+    .brand{ display:flex; align-items:center; gap:6px; font-weight:900; letter-spacing:.4px; }
+    .logo{
+      width:28px;height:28px;border-radius:8px;display:grid;place-items:center;
+      background:linear-gradient(135deg,var(--mint),var(--mint-2));
+      color:var(--ink); font-weight:900; box-shadow:0 6px 18px rgba(0,0,0,.25);
+    }
+    .nav-ctas{display:flex; gap:6px; align-items:center; flex-wrap: wrap;}
+    .pill{
+      display:inline-flex;align-items:center;gap:4px;
+      padding:5px 8px;border-radius:999px;background:rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.14);
+      font-weight:700;
+      font-size: 0.75rem;
+    }
+    .action{
+      display:inline-flex;align-items:center;gap:4px; padding:5px 6px;
+      border-radius:8px; border:1px solid rgba(168,230,207,.35); background:rgba(255,255,255,.06);
+      cursor:pointer; font-weight:700;
+      transition:transform .15s ease, box-shadow .15s ease, background .2s ease;
+      font-size: 0.75rem;
+      min-height: 32px;
+    }
+    .action:hover{ transform: translateY(-1px); box-shadow:0 10px 18px rgba(0,0,0,.22) }
+
+    /* COMPACT TIMER - NEW DESIGN */
+    .timer-container {
+      display: flex;
+      align-items: center;
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 6px;
+      padding: 4px 8px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      min-width: auto;
+    }
+    .countdown {
+      font-size: 0.85rem;
+      font-weight: 900;
+      color: var(--mint);
+      letter-spacing: 0.5px;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+    }
+    .next-game {
+      display: none; /* HIDDEN AS REQUESTED */
+    }
+
+    header{text-align:center;padding-top:2px}
+    h1{
+      font-size:1.5rem;
+      letter-spacing:.5px;
+      background:linear-gradient(90deg,var(--mint),#d7f7e9);
+      -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+      filter:drop-shadow(0 6px 18px rgba(0,0,0,.25));
+      position:relative;display:inline-block
+    }
+    h1::after{
+      content:"";position:absolute;left:50%;transform:translateX(-50%);
+      bottom:-6px;width:80px;height:2px;border-radius:3px;
+      background:linear-gradient(90deg,var(--mint),#d7f7e9);
+      opacity:.9
+    }
+    .subtitle{opacity:.92;margin-top:6px; font-weight:600; font-size: 0.8rem; line-height: 1.3; padding: 0 5px;}
+    .top-bar{
+      display:flex;flex-wrap:wrap;gap:6px;align-items:center;justify-content:center;
+      background:rgba(0,33,51,.55);
+      border:1px solid rgba(255,255,255,.08);
+      backdrop-filter: blur(6px);
+      padding:8px 10px;border-radius:10px;
+      box-shadow:0 10px 28px rgba(0,0,0,.25) inset, 0 6px 16px rgba(0,0,0,.18)
+    }
+    .top-bar .pill{font-weight:800}
+
+    /* GAME LAYOUT */
+    .game{display:grid;grid-template-columns:1fr;gap:12px; align-items:start}
+
+    .panel{
+      background:linear-gradient(180deg,rgba(1,33,51,.7),rgba(1,26,40,.7));
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:14px;
+      padding:14px;
+      box-shadow:var(--glow);
+      transform: translateY(0);
+      animation: fadeUp .5s ease both;
+    }
+    @keyframes fadeUp{
+      from{opacity:0; transform: translateY(8px)}
+      to{opacity:1; transform: translateY(0)}
+    }
+    .panel h2{
+      font-size:1rem;margin-bottom:8px;color:var(--mint);letter-spacing:.35px; text-transform:uppercase
+    }
+    .lede{font-size:0.8rem; opacity:.88; margin:-2px 0 8px; line-height:1.45}
+
+    /* inputs */
+    .input{display:grid;gap:8px}
+    .field label{display:block;margin:2px 0 4px 2px;opacity:.98; font-weight:700; font-size: 0.8rem;}
+    .field input, .field select{
+      width:100%;padding:8px 10px;border-radius:8px;border:1px solid rgba(168,230,207,.35);
+      background:rgba(255,255,255,.06);color:#fff;font-size:0.85rem;outline:none;
+      transition:box-shadow .2s,border-color .2s;text-transform:uppercase;
+      min-height: 40px;
+    }
+    .field input:focus{ border-color:var(--mint); box-shadow:0 0 0 4px rgba(168,230,207,.20) }
+
+    .btn{
+      display:flex;align-items:center;justify-content:center;gap:4px;
+      padding:8px 10px;border-radius:8px;border:none;cursor:pointer;
+      font-weight:900;color:var(--ink);
+      background:linear-gradient(90deg,var(--mint),var(--mint-2));
+      box-shadow:0 8px 20px rgba(0,0,0,.22);
+      transition:transform .15s ease, box-shadow .15s ease, filter .15s ease;
+      font-size: 0.8rem;
+      min-height: 40px;
+    }
+    .btn:hover{transform:translateY(-2px);box-shadow:0 12px 26px rgba(0,0,0,.30)}
+    .btn.secondary{
+      background:transparent;color:#e5f5ff;border:1px solid rgba(168,230,207,.35)
+    }
+    .btn.ghost{
+      background:transparent;color:#e5f9ff;border:1px dashed rgba(168,230,207,.35)
+    }
+    .btn:disabled{ opacity:.6; cursor:not-allowed }
+
+    /* NEW COMPACT WORD GRID DESIGN */
+    .search-container {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+    .search-container input {
+      flex: 1;
+      padding: 8px 10px;
+      border-radius: 8px;
+      border: 1px solid rgba(168,230,207,.35);
+      background: rgba(255,255,255,.06);
+      color: #fff;
+      outline: none;
+      font-size: 0.85rem;
+      min-height: 40px;
+    }
+    .search-container input:focus {
+      border-color: var(--mint);
+      box-shadow: 0 0 0 4px rgba(168,230,207,.20);
+    }
+    .search-container button {
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      font-weight: 900;
+      color: var(--ink);
+      background: linear-gradient(90deg, var(--mint), var(--mint-2));
+      box-shadow: 0 8px 20px rgba(0,0,0,.22);
+      transition: transform .15s ease, box-shadow .15s ease;
+      min-width: 80px;
+    }
+    .search-container button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 26px rgba(0,0,0,.30);
+    }
+
+    .word-grid-container {
+      background: rgba(1, 33, 51, 0.4);
+      border-radius: 12px;
+      padding: 12px;
+      border: 1px solid rgba(255,255,255,.08);
+      box-shadow: 0 8px 20px rgba(0,0,0,.15);
+    }
+
+    /* COMPACT GRID - similar to second example */
+    .word-grid {
+      --cols: 4;
+      display: grid;
+      grid-template-columns: repeat(var(--cols), 1fr);
+      grid-auto-rows: minmax(24px, 1fr);
+      gap: 6px;
+      min-height: 150px;
+      max-height: 300px;
+      overflow-y: auto;
+      padding: 4px;
+    }
+
+    .word-item {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 8px 4px;
+      border-radius: 6px;
+      background: linear-gradient(145deg, rgba(168,230,207,.20), rgba(168,230,207,.08));
+      border: 1px solid rgba(168,230,207,.35);
+      text-align: center;
+      font-weight: 800;
+      letter-spacing: .35px;
+      user-select: none;
+      cursor: pointer;
+      transition: transform .12s ease, background .2s ease, box-shadow .2s ease;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-size: 0.75rem;
+      line-height: 1;
+      text-shadow: 0 1px 0 rgba(0,0,0,.25);
+      position: relative;
+      isolation: isolate;
+      min-height: 32px;
+    }
+    .word-item:hover {
+      background: rgba(168,230,207,.32);
+      transform: translateY(-1px);
+      box-shadow: 0 2px 6px rgba(0,0,0,.18)
+    }
+    .word-item.selected {
+      background: linear-gradient(145deg, rgba(255,215,0,.3), rgba(255,215,0,.2));
+      border-color: #ffd700;
+      color: #ffd700;
+      transform: scale(1.05);
+    }
+    .word-item.featured {
+      background: linear-gradient(145deg, rgba(255,215,0,.25), rgba(255,215,0,.15));
+      border-color: #ffd700;
+      color: #ffd700;
+      order: -1;
+    }
+    .word-item.exact-match {
+      background: linear-gradient(145deg, rgba(255,140,0,.4), rgba(255,165,0,.3));
+      border-color: #ff8c00;
+      color: #fff;
+      order: -2;
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+    .word-item::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      background: radial-gradient(60% 90% at 50% 0%, rgba(255,255,255,.18), transparent 60%);
+      opacity: 0;
+      transition: opacity .2s ease;
+    }
+    .word-item:hover::after {
+      opacity: 1;
+    }
+
+    .featured-badge {
+      position: absolute;
+      top: -6px;
+      right: -6px;
+      background: #ffd700;
+      color: #000;
+      border-radius: 50%;
+      width: 14px;
+      height: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.5rem;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+
+    .exact-match-badge {
+      position: absolute;
+      top: -6px;
+      right: -6px;
+      background: #ff8c00;
+      color: #fff;
+      border-radius: 50%;
+      width: 14px;
+      height: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.5rem;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+
+    .grid-controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 10px;
+    }
+
+    .grid-info {
+      font-size: 0.75rem;
+      opacity: 0.8;
+    }
+
+    /* bet slip (selected words) */
+    .slip{
+      display:flex;flex-wrap:wrap;gap:4px;align-items:center;
+      padding:6px;border-radius:8px;
+      background:rgba(255,255,255,.05);
+      border:1px solid rgba(168,230,207,.25);
+      min-height:36px;
+    }
+    .chip{
+      display:inline-flex;align-items:center;gap:4px;
+      padding:4px 6px;border-radius:999px;
+      background:linear-gradient(145deg, rgba(168,230,207,.15), rgba(168,230,207,.06));
+      border:1px solid rgba(168,230,207,.35);
+      font-weight:900;font-size:0.75rem; letter-spacing:.3px;
+      box-shadow:0 4px 10px rgba(0,0,0,.18) inset;
+      animation: pop .2s ease;
+    }
+    @keyframes pop{ from{ transform:scale(.92); opacity:0 } to { transform:scale(1); opacity:1 } }
+    .chip .x{
+      width:14px;height:14px;display:grid;place-items:center;cursor:pointer;
+      border-radius:50%;border:1px solid rgba(168,230,207,.4);
+      background:rgba(255,255,255,.12);font-size:0.6rem;line-height:1
+    }
+    .slip-meta{opacity:.9;font-size:0.75rem;margin-left:auto; font-weight:800}
+
+    /* review box */
+    .review{
+      padding:6px;border-radius:8px;background:rgba(255,255,255,.05);
+      border:1px dashed rgba(168,230,207,.35);font-weight:800;letter-spacing:.5px;
+      font-size: 0.8rem;
+    }
+
+    /* stake info box - NEW */
+    .stake-info {
+      background: rgba(168,230,207,.1);
+      border: 1px solid rgba(168,230,207,.3);
+      border-radius: 10px;
+      padding: 10px;
+      margin: 8px 0;
+      font-size: 0.8rem;
+    }
+    .stake-info h4 {
+      color: var(--mint);
+      margin: 0 0 6px 0;
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .stake-info .stake-range {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin: 8px 0;
+    }
+    .stake-range-item {
+      text-align: center;
+      padding: 6px;
+      border-radius: 6px;
+      background: rgba(1,33,51,.4);
+      border: 1px solid rgba(255,255,255,.1);
+    }
+    .stake-range-item .label {
+      font-size: 0.7rem;
+      opacity: 0.8;
+      margin-bottom: 2px;
+    }
+    .stake-range-item .value {
+      font-weight: 900;
+      color: var(--mint);
+      font-size: 0.9rem;
+    }
+    .winning-info {
+      text-align: center;
+      padding: 8px;
+      background: rgba(25,195,125,.1);
+      border: 1px solid rgba(25,195,125,.3);
+      border-radius: 8px;
+      margin-top: 8px;
+      font-weight: 700;
+    }
+    .winning-info .potential {
+      color: var(--good);
+      font-size: 0.9rem;
+      margin-top: 4px;
+    }
+
+    /* result section - HIDDEN */
+    .result{
+      display:none;
+    }
+
+    footer{opacity:.8;text-align:center;margin-top:4px; font-size: 0.7rem;}
+
+    /* toast popup */
+    .toast{
+      position:fixed;left:50%;top:20px;transform:translateX(-50%);
+      background:#fff;color:#00324d;border-radius:10px;padding:8px 10px;
+      box-shadow:0 10px 26px rgba(0,0,0,.30);z-index:3000;display:none;max-width:90%;
+      font-weight:900;
+      font-size: 0.8rem;
+    }
+    .toast.show{display:block;animation:drop .24s ease-out}
+    @keyframes drop{from{transform:translate(-50%,-14px);opacity:.0}to{transform:translate(-50%,0);opacity:1}}
+
+    /* modal hint */
+    .modal{
+      position:fixed;inset:0;display:none;place-items:center;z-index:2600;
+      background:rgba(0,0,0,.35);backdrop-filter:blur(2px);
+      padding: 10px;
+    }
+    .modal-card{
+      background:#fff;color:#00324d;border-radius:12px;padding:14px;max-width:100%;width:100%;
+      box-shadow:0 18px 48px rgba(0,0,0,.35);text-align:center
+    }
+    .modal .btn{width:auto}
+
+    /* progress ring timer */
+    .ring{
+      position:relative; width:40px; height:40px; display:grid; place-items:center;
+    }
+    .ring svg{ transform: rotate(-90deg); width: 40px; height: 40px; }
+    .ring .num{ position:absolute; font-size:.6rem; font-weight:900; letter-spacing:.3px }
+
+    /* subtle shimmering highlight for primary CTA */
+    .shimmer{
+      position:relative; overflow:hidden;
+    }
+    .shimmer::after{
+      content:""; position:absolute; top:0; left:-120%;
+      width:60%; height:100%;
+      background: linear-gradient(110deg, transparent 0%, rgba(255,255,255,.6) 45%, transparent 100%);
+      animation: shimmer 3.2s ease-in-out infinite;
+    }
+    @keyframes shimmer{ 50% { left:160% } }
+
+    /* reduced motion */
+    @media (prefers-reduced-motion: reduce){
+      *{animation:none!important; transition:none!important}
+    }
+    
+    /* Hidden letters bag */
+    #letters-bag {
+      display: none;
+    }
+    
+    /* User info */
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 8px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.15);
+      font-size: 0.75rem;
+    }
+    .user-avatar {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+    
+    /* Bet History Modal */
+    .history-modal {
+      position: fixed;
+      inset: 0;
+      display: none;
+      place-items: center;
+      z-index: 3000;
+      background: rgba(0,0,0,0.8);
+      backdrop-filter: blur(4px);
+      padding: 10px;
+    }
+    .history-container {
+      background: #fff;
+      border-radius: 14px;
+      overflow: hidden;
+      max-width: 100%;
+      width: 100%;
+      max-height: 80vh;
+      overflow-y: auto;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    }
+    .history-header {
+      background: var(--bg1);
+      color: white;
+      padding: 12px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .history-content {
+      padding: 16px;
+      color: #00324d;
+    }
+    .history-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px solid #eee;
+      font-size: 0.8rem;
+    }
+    .history-item:last-child {
+      border-bottom: none;
+    }
+    .history-date {
+      font-size: 0.75rem;
+      opacity: 0.7;
+    }
+    .history-words {
+      font-weight: 700;
+      margin: 4px 0;
+    }
+    .history-result {
+      font-weight: 900;
+    }
+    .history-result.win {
+      color: var(--good);
+    }
+    .history-result.lose {
+      color: var(--bad);
+    }
+
+    /* Media queries for larger screens */
+    @media (min-width: 768px) {
+      body {
+        padding: 12px;
+        font-size: 16px;
+      }
+      
+      .container {
+        max-width: 768px;
+      }
+      
+      .game {
+        grid-template-columns: 1fr 1fr;
+      }
+      
+      .word-grid {
+        --cols: 5;
+      }
+      
+      .timer-container {
+        min-width: auto;
+      }
+      .countdown {
+        font-size: 0.9rem;
+      }
+      
+      .stake-info .stake-range {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    /* ADDED FROM SECOND CODE: Odds display */
+    .odds-display {
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 0.75rem;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      margin-bottom: 8px;
+    }
+    .odds-value {
+      font-weight: 900;
+      color: var(--mint);
+      margin-left: 4px;
+    }
+    
+    /* ADDED FROM SECOND CODE: Maximum stake warning */
+    .stake-warning {
+      color: #ffcc00;
+      font-size: 0.7rem;
+      margin-top: 4px;
+      display: none;
+    }
+
+    /* ADDED: Entry box styling */
+    .entry-container {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+    .entry-container input {
+      flex: 1;
+      padding: 8px 10px;
+      border-radius: 8px;
+      border: 1px solid rgba(168,230,207,.35);
+      background: rgba(255,255,255,.06);
+      color: #fff;
+      outline: none;
+      font-size: 0.85rem;
+      min-height: 40px;
+      text-transform: uppercase;
+    }
+    .entry-container input:focus {
+      border-color: var(--mint);
+      box-shadow: 0 0 0 4px rgba(168,230,207,.20);
+    }
+    .entry-container button {
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      font-weight: 900;
+      color: var(--ink);
+      background: linear-gradient(90deg, var(--mint), var(--mint-2));
+      box-shadow: 0 8px 20px rgba(0,0,0,.22);
+      transition: transform .15s ease, box-shadow .15s ease;
+      min-width: 80px;
+    }
+    .entry-container button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 26px rgba(0,0,0,.30);
+    }
+  </style>
+</head>
+<body>
+  <!-- ambient audio -->
+  <audio id="bg-music" loop>
+    <source src="dewdrop.mp3" type="audio/mpeg">
+  </audio>
+
+  <!-- bubbles -->
+  <div class="bubbles" aria-hidden="true" id="bubbles"></div>
+
+  <div class="container" role="application">
+    <!-- nav -->
+    <div class="nav" aria-label="Top Navigation">
+      <div class="brand">
+        <div class="logo" style="background: transparent; box-shadow: none;">
+          <img src="englabet.png" alt="Englabet Logo" style="width: 28px; height: 28px; border-radius: 8px;">
+        </div>
+        <div>
+          <div style="font-size:0.8rem" id="game-name">3 Letters Bet</div>
+          <small style="opacity:.8;font-weight:700; font-size: 0.6rem;" id="game-edition">Triple Word Edition</small>
+        </div>
+      </div>
+      
+      <!-- COMPACT TIMER PLACEMENT - Added here -->
+      <div class="timer-container">
+        <div class="countdown" id="countdown">00:00:00</div>
+      </div>
+      
+      <div class="nav-ctas">
+        <div class="user-info" id="user-info" style="display: none;">
+          <img src="" alt="User Avatar" class="user-avatar" id="user-avatar">
+          <span id="user-name">Player</span>
+        </div>
+        <div class="pill" title="Session Window" id="session-time">2:00pm – 4:00pm</div>
+        <button id="music-toggle" class="action" aria-pressed="true" title="Toggle Ocean Ambience">
+          <i class="fa-solid fa-music"></i> <span>Sound On</span>
+        </button>
+        <button id="history-btn" class="action" title="Bet History"><i class="fa-solid fa-clock-rotate-left"></i> History</button>
+        <button id="help-btn" class="action" title="How to play" aria-haspopup="dialog"><i class="fa-regular fa-circle-question"></i> Help</button>
+        <button id="logout-btn" class="action" title="Logout" style="display: none;"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
+      </div>
+    </div>
+
+    <header>
+      <h1 id="game-title">3 Letters Word Challenge</h1>
+      <p class="subtitle" id="game-subtitle">Select valid 3-letter words. Each correct word wins your bet amount, incorrect words lose it. Max 10 words per bet.</p>
+    </header>
+
+    <div class="top-bar" role="status" aria-live="polite">
+      <div class="pill"><i class="fa-solid fa-wallet"></i> Balance: <span id="balance">$1000</span></div>
+      <div class="pill"><i class="fa-solid fa-key"></i> Key Letter: <b id="key-letter">U</b></div>
+      <div class="pill"><i class="fa-solid fa-coins"></i> Stake Range: <b id="stake-range-display">$5 - $200</b></div>
+    </div>
+
+    <div class="game">
+      <!-- Left: input / actions -->
+      <section class="panel" aria-labelledby="guess-title">
+        <h2 id="guess-title">Your 3-Letter Words</h2>
+        <p class="lede">Select 3-letter words from the list. Each correct word earns your bet; each miss deducts it. Add up to 10 words per round.</p>
+
+        <!-- STAKE INFO BOX - NEW -->
+        <div class="stake-info">
+          <h4><i class="fa-solid fa-circle-info"></i> 3-Letter Bet Rules</h4>
+          <div class="stake-range">
+            <div class="stake-range-item">
+              <div class="label">Minimum Stake</div>
+              <div class="value">$5</div>
+            </div>
+            <div class="stake-range-item">
+              <div class="label">Maximum Stake</div>
+              <div class="value">$200</div>
+            </div>
+          </div>
+          <div class="winning-info">
+            <div>Potential Winnings</div>
+            <div class="potential" id="potential-winning">$1000 - $40,000</div>
+          </div>
+        </div>
+
+        <!-- ADDED FROM SECOND CODE: Odds Display -->
+        <div class="odds-display">
+          <span>Odds: </span>
+          <span class="odds-value" id="odds-value">1:10</span>
+          <span> | Max Win: </span>
+          <span class="odds-value" id="potential-win">$0</span>
+        </div>
+
+        <div class="input">
+          <!-- ADDED FROM SECOND CODE: Entry Box -->
+          <div class="entry-container">
+            <input id="word-entry" type="text" placeholder="Enter 3-letter word..." aria-label="Enter 3-letter word" maxlength="3" />
+            <button id="add-word-btn"><i class="fa-solid fa-plus"></i> Add</button>
+          </div>
+
+          <div class="review" id="review-box" aria-live="polite">
+            Selected: <span id="review-text">0 words</span>
+          </div>
+
+          <div style="display:flex;gap:6px;flex-wrap:wrap">
+            <button id="clear-slip" class="btn ghost" style="flex:0 0 auto"><i class="fa-regular fa-trash-can"></i> Clear All</button>
+          </div>
+
+          <div class="field">
+            <label>Bet Slip (<span id="slip-count">0</span>/10)</label>
+            <div id="bet-slip" class="slip">
+              <span style="opacity:.8">No words selected yet</span>
+            </div>
+            <div class="slip-meta" id="slip-meta">Total: $0</div>
+          </div>
+
+          <div class="field">
+            <label for="bet-amount">Stake Amount (Min <span id="min-stake">$5</span>, Max <span id="max-stake">$200</span>)</label>
+            <input id="bet-amount" type="number" value="5" min="5" max="200" step="5" inputmode="numeric" />
+            <!-- ADDED FROM SECOND CODE: Stake Warning -->
+            <div class="stake-warning" id="stake-warning">Maximum winning exceeded! Reduce stake.</div>
+          </div>
+
+          <div class="field" style="display:grid; grid-template-columns: 1fr auto; gap:6px; align-items:center">
+            <div>
+              <label for="winning-per-word">Winning Per Word</label>
+              <input id="winning-per-word" type="text" value="$1000" readonly />
+            </div>
+            <button id="submit-btn" class="btn shimmer" title="Place your bet now"><i class="fa-solid fa-coins"></i> Place Bet</button>
+          </div>
+          
+          <!-- Winning calculation display -->
+          <div class="review" style="background:rgba(25,195,125,.1); border-color:rgba(25,195,125,.3);">
+            <i class="fa-solid fa-calculator"></i> If all words are correct: Win <span id="calculated-winning" style="color:var(--good);font-weight:900">$1000</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Right: word list -->
+      <section class="panel" aria-labelledby="list-title">
+        <h2 id="list-title">3-Letter Word List</h2>
+        <p class="lede">Click on 3-letter words to add them to your bet slip. All words are exactly 3 letters long.</p>
+
+        <!-- NEW SEARCH CONTAINER -->
+        <div class="search-container">
+          <input id="search-words" type="text" placeholder="Search 3-letter words..." aria-label="Search 3-letter words" maxlength="3"/>
+          <button id="search-btn"><i class="fa-solid fa-magnifying-glass"></i> Search</button>
+        </div>
+
+        <!-- NEW COMPACT WORD GRID CONTAINER -->
+        <div class="word-grid-container">
+          <div id="word-grid" class="word-grid" role="list">
+            <div class="word-item">Loading…</div>
+          </div>
+          <div class="grid-controls">
+            <div class="grid-info" id="grid-info">Showing 0 words</div>
+          </div>
+        </div>
+
+        <p style="opacity:.85;margin-top:8px;font-size:.75rem">Tip: All words are exactly 3 letters. Tap to add to bet slip. Max 10 words.</p>
+      </section>
+    </div>
+
+    <!-- Result section - HIDDEN -->
+    <section id="result" class="result" aria-live="polite">
+      <!-- This section is now hidden and won't show results to the user -->
+    </section>
+
+    <footer><p>From ENGLAGIP powered by AITECH • <span id="footer-game-name">3 Letters Bet</span> Challenge © 2025 • Triple Word Edition • Crafted for fast-paced 3-letter word betting.</p></footer>
+  </div>
+
+  <!-- Help modal -->
+  <div id="help-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="help-title">
+    <div class="modal-card">
+      <h3 id="help-title" style="font-weight:900;margin-bottom:8px">How to Play 3 Letters Bet</h3>
+      <div style="text-align:left; font-weight:700; line-height:1.35; margin-bottom:12px">
+        <ol style="padding-left:18px">
+          <li><b>Fixed Stake Range:</b> Stake must be between $5 and $200</li>
+          <li><b>Fixed Winnings:</b> $5 stake → $1000 winning, $200 stake → $40,000 winning</li>
+          <li>Select <b>3-letter words</b> from the word list or type them in the entry box.</li>
+          <li>Add up to <b>10</b> words to your bet slip.</li>
+          <li>Set your <b>Stake Amount</b> (between $5 and $200).</li>
+          <li>Place your bet.</li>
+          <li>Each correct 3-letter word pays +bet; incorrect deducts −bet.</li>
+          <li>All words must be exactly 3 letters long.</li>
+        </ol>
+      </div>
+      <button id="help-ok" class="btn">Got it</button>
+    </div>
+  </div>
+
+  <!-- Bet History Modal -->
+  <div id="history-modal" class="history-modal">
+    <div class="history-container">
+      <div class="history-header">
+        <h3 style="margin:0">Bet History</h3>
+        <button id="history-close" class="action" style="background:transparent;color:white;border:none;font-size:1.2rem">&times;</button>
+      </div>
+      <div class="history-content">
+        <div id="history-list"></div>
+        <div id="no-history" style="text-align:center;padding:20px;opacity:0.7">No bet history yet</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" class="toast" role="status" aria-live="assertive"></div>
+
+<script>
+(() => {
+  // ---- STATE ----
+  let dict=[], validWords=[];
+  let balance=1000, currency="$";
+  let roundActive=true;
+  const MAX_SLIP = 10;
+  let slip = []; // selected words
+  let betHistory = [];
+  let currentUser = null;
+  let currentWords = []; // Words currently displayed in grid
+  let featuredWord = null; // For searched words
+  let exactMatchWord = null; // For exact search matches
+  let isSearchActive = false; // Track if user is actively searching
+  
+  // ---- 3-LETTER BET CONSTANTS ----
+  const MIN_STAKE = 5;
+  const MAX_STAKE = 200;
+  const MIN_WINNING = 1000;
+  const MAX_WINNING = 40000;
+  
+  // CORRECTED GAME SCHEDULE - All days have 8 games now
+  const schedule = {
+    monday: [
+      { name: "DEWDROP", start: "08:00", end: "10:00", keyLetter: "O", dictLetter: "O" },
+      { name: "EVOLUTION", start: "10:00", end: "12:00", keyLetter: "A", dictLetter: "A" },
+      { name: "MIDDAY", start: "12:00", end: "14:00", keyLetter: "B", dictLetter: "B" },
+      { name: "GENIUS", start: "14:00", end: "16:00", keyLetter: "C", dictLetter: "C" },
+      { name: "FAST LANE", start: "16:00", end: "18:00", keyLetter: "D", dictLetter: "D" },
+      { name: "ANGLOPHONES", start: "18:00", end: "20:00", keyLetter: "E", dictLetter: "E" },
+      { name: "CHEETAH", start: "20:00", end: "22:00", keyLetter: "F", dictLetter: "F" },
+      { name: "EXIT", start: "22:00", end: "00:00", keyLetter: "G", dictLetter: "G" }
+    ],
+    tuesday: [
+      { name: "DEWDROP", start: "08:00", end: "10:00", keyLetter: "O", dictLetter: "O" },
+      { name: "PEAK", start: "10:00", end: "12:00", keyLetter: "H", dictLetter: "H" },
+      { name: "MIDDAY", start: "12:00", end: "14:00", keyLetter: "B", dictLetter: "B" },
+      { name: "SKYLINE", start: "14:00", end: "16:00", keyLetter: "I", dictLetter: "I" },
+      { name: "WORD BEST", start: "16:00", end: "18:00", keyLetter: "J", dictLetter: "J" },
+      { name: "CHAMPION", start: "18:00", end: "20:00", keyLetter: "K", dictLetter: "K" },
+      { name: "CROSSING", start: "20:00", end: "22:00", keyLetter: "L", dictLetter: "L" },
+      { name: "EXIT", start: "22:00", end: "00:00", keyLetter: "M", dictLetter: "M" }
+    ],
+    wednesday: [
+      { name: "DEWDROP", start: "08:00", end: "10:00", keyLetter: "O", dictLetter: "O" },
+      { name: "BREAKFAST", start: "10:00", end: "12:00", keyLetter: "N", dictLetter: "N" },
+      { name: "MIDDAY", start: "12:00", end: "14:00", keyLetter: "B", dictLetter: "B" },
+      { name: "FUN BASE", start: "14:00", end: "16:00", keyLetter: "O", dictLetter: "O" },
+      { name: "CHALLENGE", start: "16:00", end: "18:00", keyLetter: "P", dictLetter: "P" },
+      { name: "SMART", start: "18:00", end: "20:00", keyLetter: "Q", dictLetter: "Q" },
+      { name: "BRIDGE", start: "20:00", end: "22:00", keyLetter: "R", dictLetter: "R" },
+      { name: "EXIT", start: "22:00", end: "00:00", keyLetter: "S", dictLetter: "S" }
+    ],
+    thursday: [
+      { name: "DEWDROP", start: "08:00", end: "10:00", keyLetter: "O", dictLetter: "O" },
+      { name: "STARTER", start: "10:00", end: "12:00", keyLetter: "T", dictLetter: "T" },
+      { name: "MIDDAY", start: "12:00", end: "14:00", keyLetter: "B", dictLetter: "B" },
+      { name: "FREE LUNCH", start: "14:00", end: "16:00", keyLetter: "U", dictLetter: "U" },
+      { name: "ACCESS", start: "16:00", end: "18:00", keyLetter: "V", dictLetter: "V" },
+      { name: "REMINDER", start: "18:00", end: "20:00", keyLetter: "W", dictLetter: "W" },
+      { name: "EVENING FUN", start: "20:00", end: "22:00", keyLetter: "X", dictLetter: "X" },
+      { name: "EXIT", start: "22:00", end: "00:00", keyLetter: "Y", dictLetter: "Y" }
+    ],
+    friday: [
+      { name: "DEWDROP", start: "08:00", end: "10:00", keyLetter: "O", dictLetter: "O" },
+      { name: "INTRO", start: "10:00", end: "12:00", keyLetter: "A", dictLetter: "A" },
+      { name: "MIDDAY", start: "12:00", end: "14:00", keyLetter: "B", dictLetter: "B" },
+      { name: "TGIF", start: "14:00", end: "16:00", keyLetter: "C", dictLetter: "C" },
+      { name: "FLUKE", start: "16:00", end: "18:00", keyLetter: "D", dictLetter: "D" },
+      { name: "OXFORD 3000", start: "18:00", end: "20:00", keyLetter: "E", dictLetter: "E" },
+      { name: "MASTERCLASS", start: "20:00", end: "22:00", keyLetter: "F", dictLetter: "F" },
+      { name: "EXIT", start: "22:00", end: "00:00", keyLetter: "G", dictLetter: "G" }
+    ],
+    saturday: [
+      { name: "DEWDROP", start: "08:00", end: "10:00", keyLetter: "O", dictLetter: "O" },
+      { name: "WORDBASE", start: "10:00", end: "12:00", keyLetter: "H", dictLetter: "H" },
+      { name: "MIDDAY", start: "12:00", end: "14:00", keyLetter: "B", dictLetter: "B" },
+      { name: "FREE LUNCH", start: "14:00", end: "16:00", keyLetter: "I", dictLetter: "I" },
+      { name: "AWL", start: "16:00", end: "18:00", keyLetter: "J", dictLetter: "J" },
+      { name: "WEEKEND", start: "18:00", end: "20:00", keyLetter: "K", dictLetter: "K" },
+      { name: "STRUCTURE", start: "20:00", end: "22:00", keyLetter: "L", dictLetter: "L" },
+      { name: "EXIT", start: "22:00", end: "00:00", keyLetter: "M", dictLetter: "M" }
+    ],
+    sunday: [
+      { name: "DEWDROP", start: "08:00", end: "10:00", keyLetter: "O", dictLetter: "O" },
+      { name: "RELIEF", start: "10:00", end: "12:00", keyLetter: "N", dictLetter: "N" },
+      { name: "MIDDAY", start: "12:00", end: "14:00", keyLetter: "B", dictLetter: "B" },
+      { name: "WORDFINDER", start: "14:00", end: "16:00", keyLetter: "P", dictLetter: "P" },
+      { name: "WEEKEND EXTRA", start: "16:00", end: "18:00", keyLetter: "Q", dictLetter: "Q" },
+      { name: "GO-GETTER", start: "18:00", end: "20:00", keyLetter: "R", dictLetter: "R" },
+      { name: "AMBITION", start: "20:00", end: "22:00", keyLetter: "S", dictLetter: "S" },
+      { name: "EXIT", start: "22:00", end: "00:00", keyLetter: "T", dictLetter: "T" }
+    ]
+  };
+  
+  // Simple 3-letter word game config
+  const gameConfig = {
+    name: "3 Letters Bet",
+  };
+  
+  // Firebase configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyDivFTAKUznc1xryU8marfMDZG3v1eYsl8",
+    authDomain: "englabet-ad1fe.firebaseapp.com",
+    projectId: "englabet-ad1fe",
+    storageBucket: "englabet-ad1fe.firebasestorage.app",
+    messagingSenderId: "124544822433",
+    appId: "1:124544822433:web:c77c980f28c99364c214e0",
+    measurementId: "G-JMYYM433R7"
+  };
+  
+  // Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+  const auth = firebase.auth();
+
+  // ---- DOM ----
+  const els = {
+    balance: document.getElementById('balance'),
+    grid: document.getElementById('word-grid'),
+    bet: document.getElementById('bet-amount'),
+    result: document.getElementById('result'),
+    search: document.getElementById('search-words'),
+    searchBtn: document.getElementById('search-btn'),
+    toast: document.getElementById('toast'),
+    reviewText: document.getElementById('review-text'),
+    reviewBox: document.getElementById('review-box'),
+    betSlip: document.getElementById('bet-slip'),
+    slipCount: document.getElementById('slip-count'),
+    clearSlip: document.getElementById('clear-slip'),
+    helpBtn: document.getElementById('help-btn'),
+    helpModal: document.getElementById('help-modal'),
+    helpOk: document.getElementById('help-ok'),
+    musicToggle: document.getElementById('music-toggle'),
+    bg: document.getElementById('bg-music'),
+    slipMeta: document.getElementById('slip-meta'),
+    bubbles: document.getElementById('bubbles'),
+    userInfo: document.getElementById('user-info'),
+    userAvatar: document.getElementById('user-avatar'),
+    userName: document.getElementById('user-name'),
+    logoutBtn: document.getElementById('logout-btn'),
+    historyBtn: document.getElementById('history-btn'),
+    historyModal: document.getElementById('history-modal'),
+    historyList: document.getElementById('history-list'),
+    historyClose: document.getElementById('history-close'),
+    noHistory: document.getElementById('no-history'),
+    gameName: document.getElementById('game-name'),
+    gameTitle: document.getElementById('game-title'),
+    gameSubtitle: document.getElementById('game-subtitle'),
+    sessionTime: document.getElementById('session-time'),
+    footerGameName: document.getElementById('footer-game-name'),
+    gridInfo: document.getElementById('grid-info'),
+    countdown: document.getElementById('countdown'),
+    keyLetter: document.getElementById('key-letter'),
+    calculatedWinning: document.getElementById('calculated-winning'),
+    potentialWinning: document.getElementById('potential-winning'),
+    stakeRangeDisplay: document.getElementById('stake-range-display'),
+    // ADDED FROM SECOND CODE:
+    wordEntry: document.getElementById('word-entry'),
+    addWordBtn: document.getElementById('add-word-btn'),
+    oddsValue: document.getElementById('odds-value'),
+    potentialWin: document.getElementById('potential-win'),
+    minStake: document.getElementById('min-stake'),
+    maxStake: document.getElementById('max-stake'),
+    winningPerWord: document.getElementById('winning-per-word'),
+    stakeWarning: document.getElementById('stake-warning'),
+    submitBtn: document.getElementById('submit-btn')
+  };
+
+  // ---- UTIL ----
+  const sleep = ms => new Promise(r=>setTimeout(r,ms));
+  const shuffle = a => {for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;};
+  const rand = (n)=>Math.floor(Math.random()*n);
+  const formatMoney = (n)=> currency + n.toLocaleString();
+
+  function notify(msg, type="info"){
+    els.toast.textContent = msg;
+    els.toast.style.color = type==="error" ? "#6a0000" : "#00324d";
+    els.toast.classList.add('show');
+    setTimeout(()=>els.toast.classList.remove('show'), 1400);
+  }
+
+  // ---- NORMAL WORD BET LOGIC FROM SECOND CODE ----
+  
+  // Calculate winnings based on stake - Linear interpolation between min and max
+  function calculateWinningPerWord(stake) {
+    // For 3-letter bet: linear interpolation between $1000 (for $5) and $40,000 (for $200)
+    const minStake = MIN_STAKE;
+    const maxStake = MAX_STAKE;
+    const minWin = MIN_WINNING;
+    const maxWin = MAX_WINNING;
+    
+    // Clamp stake to valid range
+    const clampedStake = Math.max(minStake, Math.min(maxStake, stake));
+    
+    // Calculate linear interpolation
+    const t = (clampedStake - minStake) / (maxStake - minStake);
+    const winning = minWin + t * (maxWin - minWin);
+    
+    return Math.round(winning);
+  }
+  
+  // Calculate total potential winning
+  function calculateTotalPotentialWinning(stake, numWords) {
+    const winningPerWord = calculateWinningPerWord(stake);
+    const totalWinning = winningPerWord * numWords;
+    
+    // Check if exceeds maximum winning
+    const maxTotalWinning = MAX_WINNING * numWords;
+    if (totalWinning > maxTotalWinning) {
+      return null; // Exceeds maximum
+    }
+    
+    return totalWinning;
+  }
+  
+  // Calculate odds based on stake
+  function calculateOdds(stake) {
+    const winningPerWord = calculateWinningPerWord(stake);
+    const odds = winningPerWord / stake;
+    return odds;
+  }
+  
+  // Check if stake is valid (within range and doesn't exceed max winning)
+  function isStakeValid(stake, numWords) {
+    if (stake < MIN_STAKE) {
+      return { valid: false, reason: `Minimum stake is ${formatMoney(MIN_STAKE)}` };
+    }
+    
+    if (stake > MAX_STAKE) {
+      return { valid: false, reason: `Maximum stake is ${formatMoney(MAX_STAKE)}` };
+    }
+    
+    const totalWinning = calculateTotalPotentialWinning(stake, numWords);
+    if (totalWinning === null) {
+      return { valid: false, reason: "Maximum winning exceeded! Reduce stake." };
+    }
+    
+    return { valid: true, reason: "" };
+  }
+  
+  // Update betting UI
+  function updateBettingUI() {
+    const stake = parseFloat(els.bet.value) || MIN_STAKE;
+    const numWords = slip.length;
+    
+    // Update stake limits display
+    els.minStake.textContent = formatMoney(MIN_STAKE);
+    els.maxStake.textContent = formatMoney(MAX_STAKE);
+    
+    // Calculate winning per word
+    const winningPerWord = calculateWinningPerWord(stake);
+    els.winningPerWord.value = formatMoney(winningPerWord);
+    
+    // Calculate odds
+    const odds = calculateOdds(stake);
+    els.oddsValue.textContent = `1:${odds.toFixed(2)}`;
+    
+    // Calculate total potential winning
+    const totalPotential = calculateTotalPotentialWinning(stake, numWords);
+    
+    // Check stake validity
+    const stakeCheck = isStakeValid(stake, numWords);
+    
+    if (!stakeCheck.valid) {
+      // Invalid stake
+      els.potentialWin.textContent = "INVALID";
+      els.potentialWin.style.color = "#f25f5c";
+      els.stakeWarning.textContent = stakeCheck.reason;
+      els.stakeWarning.style.display = "block";
+      els.submitBtn.disabled = true;
+    } else if (totalPotential === null) {
+      // Exceeds maximum winning
+      els.potentialWin.textContent = "MAX EXCEEDED";
+      els.potentialWin.style.color = "#f25f5c";
+      els.stakeWarning.textContent = "Maximum winning exceeded! Reduce stake.";
+      els.stakeWarning.style.display = "block";
+      els.submitBtn.disabled = true;
+    } else {
+      // Within limits
+      els.potentialWin.textContent = formatMoney(totalPotential);
+      els.potentialWin.style.color = "#19c37d";
+      els.stakeWarning.style.display = "none";
+      els.submitBtn.disabled = false;
+    }
+    
+    // Update slip meta
+    const totalCost = stake * numWords;
+    els.slipMeta.textContent = "Total: " + formatMoney(totalCost);
+    
+    // Update calculated winning display
+    els.calculatedWinning.textContent = formatMoney(winningPerWord * numWords);
+  }
+
+  // Countdown function - EXACT SAME AS IN FIRST CODE
+  function initEnglaBetCountdown() {
+    function pad(num) {
+      return num < 10 ? '0' + num : num;
+    }
+
+    function updateGame() {
+      const now = new Date();
+      const dayNames = ["sunday","monday","tuesday","wednesday","thursday","friday","saturday"];
+      const today = dayNames[now.getDay()];
+      const games = schedule[today] || [];
+
+      let activeGame = null;
+      let nextGame = null;
+
+      for (let i = 0; i < games.length; i++) {
+        const [startH, startM] = games[i].start.split(':').map(Number);
+        const [endH, endM] = games[i].end.split(':').map(Number);
+        const startTime = new Date();
+        startTime.setHours(startH, startM, 0, 0);
+        let endTime = new Date();
+        endTime.setHours(endH, endM, 0, 0);
+        if (endTime <= startTime) endTime.setDate(endTime.getDate() + 1);
+
+        if (now >= startTime && now < endTime) {
+          activeGame = { ...games[i], endTime };
+          if (i + 1 < games.length) nextGame = games[i+1];
+          break;
+        }
+      }
+
+      if (els.countdown) {
+        if (activeGame) {
+          const diff = activeGame.endTime - now;
+          const hours = Math.floor(diff / 1000 / 60 / 60);
+          const minutes = Math.floor((diff / 1000 / 60) % 60);
+          const seconds = Math.floor((diff / 1000) % 60);
+          els.countdown.textContent = `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
+        } else {
+          els.countdown.textContent = "00:00:00";
+        }
+      }
+    }
+
+    // Initialize and start the countdown
+    updateGame();
+    const intervalId = setInterval(updateGame, 1000);
+    
+    // Return a function to stop the countdown if needed
+    return {
+      stop: () => clearInterval(intervalId)
+    };
+  }
+
+  // NEW COMPACT GRID RENDERING FUNCTION
+  function renderGrid(words, exactMatch = null, featured = null){
+    currentWords = words;
+    els.grid.innerHTML = "";
+    
+    if(!words.length){
+      els.grid.innerHTML = "<div class='word-item'>No 3-letter words found</div>";
+      els.gridInfo.textContent = "Showing 0 words";
+      return;
+    }
+    
+    // If there's an exact match, put it first with special styling
+    let displayWords = [...words];
+    if (exactMatch && displayWords.includes(exactMatch)) {
+      displayWords = displayWords.filter(w => w !== exactMatch);
+      displayWords.unshift(exactMatch);
+    } else if (featured && displayWords.includes(featured)) {
+      displayWords = displayWords.filter(w => w !== featured);
+      displayWords.unshift(featured);
+    }
+    
+    displayWords.slice(0, 50).forEach(w => {
+      const item = document.createElement('div');
+      item.className = 'word-item';
+      
+      // Apply special styling for exact match
+      if (w === exactMatch) {
+        item.classList.add('exact-match');
+      } else if (w === featured) {
+        item.classList.add('featured');
+      }
+      
+      item.setAttribute('role', 'listitem');
+      item.textContent = w.toUpperCase();
+      item.title = "Click to add: " + w.toUpperCase();
+      
+      // Check if word is already in slip
+      if (slip.includes(w)) {
+        item.classList.add('selected');
+      }
+      
+      // Add appropriate badge
+      if (w === exactMatch) {
+        const badge = document.createElement('div');
+        badge.className = 'exact-match-badge';
+        badge.innerHTML = '<i class="fas fa-check"></i>';
+        item.appendChild(badge);
+      } else if (w === featured) {
+        const badge = document.createElement('div');
+        badge.className = 'featured-badge';
+        badge.innerHTML = '<i class="fas fa-star"></i>';
+        item.appendChild(badge);
+      }
+      
+      item.onclick = () => {
+        addToSlip(w);
+        // Update UI to show selection
+        document.querySelectorAll('.word-item').forEach(c => c.classList.remove('selected'));
+        item.classList.add('selected');
+      };
+      
+      els.grid.appendChild(item);
+    });
+    
+    els.gridInfo.textContent = `Showing ${Math.min(words.length, 50)} of ${words.length} 3-letter words`;
+  }
+
+  function renderSlip(){
+    els.betSlip.innerHTML = "";
+    if(slip.length === 0){
+      els.betSlip.innerHTML = "<span style='opacity:.8'>No words selected yet</span>";
+    } else {
+      slip.forEach((w,idx)=>{
+        const chip = document.createElement('div');
+        chip.className = 'chip';
+        const span = document.createElement('span');
+        span.textContent = w.toUpperCase();
+        const x = document.createElement('div');
+        x.className = 'x';
+        x.setAttribute('title','Remove');
+        x.setAttribute('aria-label','Remove '+w.toUpperCase());
+        x.innerHTML = '&times;';
+        x.onclick = ()=>{ removeFromSlip(idx); };
+        chip.appendChild(span);
+        chip.appendChild(x);
+        els.betSlip.appendChild(chip);
+      });
+    }
+    els.slipCount.textContent = slip.length;
+    
+    // Get stake amount and validate
+    const stake = Math.max(MIN_STAKE, parseFloat(els.bet.value||"0") || MIN_STAKE);
+    const validation = isStakeValid(stake, slip.length);
+    
+    if (validation.valid) {
+      const totalBet = stake * slip.length;
+      els.slipMeta.textContent = "Total Stake: " + formatMoney(totalBet);
+      
+      // Calculate and display potential winning
+      const potentialWinning = calculateWinningPerWord(stake);
+      els.calculatedWinning.textContent = formatMoney(potentialWinning * slip.length);
+    } else {
+      els.slipMeta.textContent = "Invalid stake";
+      els.calculatedWinning.textContent = formatMoney(0);
+    }
+    
+    els.reviewText.textContent = `${slip.length} words selected`;
+    
+    // Update grid to reflect selections
+    document.querySelectorAll('.word-item').forEach(item => {
+      const word = item.textContent.toLowerCase();
+      if (slip.includes(word)) {
+        item.classList.add('selected');
+      } else {
+        item.classList.remove('selected');
+      }
+    });
+    
+    // Update betting UI
+    updateBettingUI();
+  }
+
+  function addToSlip(raw){
+    const w = (raw||"").trim().toLowerCase();
+    if(!w) return notify("Enter a 3-letter word first");
+    if(w.length !== 3) return notify("Only 3-letter words allowed","error");
+    
+    if(slip.includes(w)) return notify("Already in your slip");
+    if(slip.length>=MAX_SLIP) return notify("Bet slip full (max 10)","error");
+    slip.push(w);
+    renderSlip();
+    // Clear the entry field after adding
+    els.wordEntry.value = '';
+  }
+
+  function removeFromSlip(index){
+    slip.splice(index,1);
+    renderSlip();
+  }
+
+  function clearSlip(){
+    slip = [];
+    renderSlip();
+  }
+
+  // Update UI for current game session - EXACT SAME AS IN FIRST CODE
+  function updateGameSessionUI(session = null) {
+    if (!session) {
+      const now = new Date();
+      const dayNames = ["sunday","monday","tuesday","wednesday","thursday","friday","saturday"];
+      const today = dayNames[now.getDay()];
+      const games = schedule[today] || [];
+      
+      for (let i = 0; i < games.length; i++) {
+        const [startH, startM] = games[i].start.split(':').map(Number);
+        const [endH, endM] = games[i].end.split(':').map(Number);
+        const startTime = new Date();
+        startTime.setHours(startH, startM, 0, 0);
+        let endTime = new Date();
+        endTime.setHours(endH, endM, 0, 0);
+        if (endTime <= startTime) endTime.setDate(endTime.getDate() + 1);
+
+        if (now >= startTime && now < endTime) {
+          session = games[i];
+          break;
+        }
+      }
+    }
+    
+    if (!session) {
+      // Default to first game of the day if no active session
+      const now = new Date();
+      const dayNames = ["sunday","monday","tuesday","wednesday","thursday","friday","saturday"];
+      const today = dayNames[now.getDay()];
+      const games = schedule[today] || [];
+      if (games.length > 0) {
+        session = games[0];
+      } else {
+        // Fallback
+        session = { name: "FREE LUNCH", keyLetter: "U", start: "14:00", end: "16:00" };
+      }
+    }
+    
+    // Update UI elements
+    els.gameName.textContent = "3 Letters Bet - " + session.name;
+    els.gameTitle.textContent = `${session.name} 3-Letter Challenge`;
+    els.gameSubtitle.innerHTML = `Select valid 3-letter words. <strong>Key letter = ${session.keyLetter}</strong>. Each correct word wins your bet amount, incorrect words lose it. Max 10 words per bet.`;
+    els.keyLetter.textContent = session.keyLetter;
+    
+    // Format time display
+    const formatTime = (timeStr) => {
+      const [hours, minutes] = timeStr.split(':');
+      const hour = parseInt(hours);
+      const ampm = hour >= 12 ? 'pm' : 'am';
+      const displayHour = hour % 12 || 12;
+      return `${displayHour}:${minutes}${ampm}`;
+    };
+    
+    els.sessionTime.textContent = `${formatTime(session.start)} – ${formatTime(session.end)}`;
+    els.footerGameName.textContent = "3 Letters Bet - " + session.name;
+  }
+
+  // Fetch 3-letter words from Datamuse API
+  async function fetchThreeLetterWords() {
+    try {
+      // Use Datamuse API to fetch common 3-letter words
+      const response = await fetch(`https://api.datamuse.com/words?sp=???&max=200&md=f&v=en`);
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch words from API');
+      }
+      
+      const data = await response.json();
+      
+      // Filter words to ensure they are exactly 3 letters and valid
+      const threeLetterWords = data
+        .filter(item => 
+          item.word && 
+          item.word.length === 3 && 
+          /^[a-zA-Z]+$/.test(item.word) &&
+          !item.word.includes(' ')
+        )
+        .map(item => item.word.toLowerCase());
+      
+      return threeLetterWords;
+    } catch (error) {
+      console.error('Error fetching 3-letter words from API:', error);
+      // Return fallback 3-letter words if API fails
+      return getFallbackThreeLetterWords();
+    }
+  }
+
+  // Fallback 3-letter words in case API fails
+  function getFallbackThreeLetterWords() {
+    return [
+      "ace", "act", "add", "age", "ago", "aid", "aim", "air", "all", "and", "ant", "any", "ape", "arm", "art", "ash", "ask", "ate", "awe", "axe",
+      "bad", "bag", "ban", "bar", "bat", "bay", "bed", "bee", "beg", "bet", "bid", "big", "bin", "bit", "bow", "box", "boy", "bug", "bus", "but",
+      "cab", "can", "cap", "car", "cat", "cow", "cry", "cup", "cut",
+      "dad", "day", "den", "did", "die", "dig", "dim", "dip", "dog", "dot", "dry", "due", "dug",
+      "ear", "eat", "egg", "end", "era", "eve", "eye",
+      "fan", "far", "fat", "fee", "few", "fig", "fit", "fix", "fly", "for", "fox", "fry", "fun",
+      "gap", "gas", "get", "god", "got", "gum", "gun", "gut",
+      "had", "ham", "has", "hat", "hay", "hen", "her", "hey", "hid", "him", "hip", "his", "hit", "hot", "how", "hug", "hut",
+      "ice", "ink", "its",
+      "jam", "jar", "jaw", "jet", "job", "jog", "joy", "jug",
+      "key", "kid", "kin", "kit",
+      "lab", "lap", "law", "lay", "leg", "let", "lid", "lie", "lip", "lit", "log", "lot", "low",
+      "mad", "man", "map", "mat", "may", "men", "met", "mix", "mud",
+      "nap", "net", "new", "nod", "not", "now", "nut",
+      "oak", "oat", "odd", "off", "oil", "old", "one", "orb", "ore", "our", "out", "owe", "owl", "own",
+      "pad", "pal", "pan", "pat", "pay", "pea", "pen", "pet", "pie", "pig", "pin", "pit", "pod", "pop", "pot", "pro", "pry", "pub", "put",
+      "rag", "ram", "ran", "rap", "rat", "raw", "red", "rib", "rid", "rig", "rim", "rip", "rob", "rod", "rot", "row", "rub", "rug", "run", "rut",
+      "sad", "saw", "say", "sea", "see", "set", "she", "shy", "sir", "sit", "six", "ski", "sky", "son", "sow", "soy", "spy", "sub", "sun",
+      "tab", "tag", "tan", "tap", "tar", "tax", "tea", "ten", "the", "tie", "tin", "tip", "toe", "ton", "too", "top", "toy", "try", "tub", "two",
+      "use",
+      "van", "vet", "via", "vie",
+      "war", "was", "way", "web", "wet", "who", "why", "win", "won",
+      "yes", "yet", "you",
+      "zip"
+    ];
+  }
+
+  // NEW: Enhanced search function for 3-letter words
+  async function searchThreeLetterWords(query) {
+    const q = query.toLowerCase().trim();
+    if (q.length !== 3) {
+      // If not exactly 3 letters, show all words that start with these letters
+      const filtered = currentWords.filter(word => 
+        word.startsWith(q) || word.includes(q)
+      );
+      return {
+        words: filtered,
+        exactMatch: null
+      };
+    }
+    
+    // Check if the exact word exists in our current words
+    const exactMatch = currentWords.includes(q);
+    
+    if (exactMatch) {
+      return {
+        words: currentWords,
+        exactMatch: q
+      };
+    } else {
+      // If exact word not found, show similar words
+      const similar = currentWords.filter(word => 
+        word.startsWith(q.charAt(0)) || 
+        word.includes(q) ||
+        word.split('').filter((c, i) => c === q[i]).length >= 2
+      );
+      return {
+        words: similar.length > 0 ? similar : currentWords,
+        exactMatch: null
+      };
+    }
+  }
+
+  // NEW: Get random 3-letter words for the grid
+  async function getRandomThreeLetterWords(count = 50) {
+    try {
+      const words = await fetchThreeLetterWords();
+      
+      // If we don't have enough words, add some fallback words
+      if (words.length < count) {
+        const additionalWords = getFallbackThreeLetterWords().slice(0, count - words.length);
+        return [...words, ...additionalWords];
+      }
+      
+      return shuffle(words).slice(0, count);
+    } catch (error) {
+      console.error('Error getting random 3-letter words:', error);
+      return shuffle(getFallbackThreeLetterWords()).slice(0, count);
+    }
+  }
+
+  async function startNewRound(){
+    // Hide result section completely
+    els.result.style.display="none";
+    roundActive=true;
+    exactMatchWord = null; // Reset exact match on new round
+    featuredWord = null; // Reset featured word on new round
+    isSearchActive = false; // Reset search state
+    clearSlip();
+
+    // Update game session UI
+    updateGameSessionUI();
+    
+    // Don't show "Loading 3-letter words..." notification here
+    // It will only show when the app first loads, not after bet placement
+    const randomWords = await getRandomThreeLetterWords(50);
+    
+    // Set valid words (all 3-letter words are potentially valid)
+    validWords = randomWords;
+    
+    // UI
+    renderGrid(randomWords);
+    
+    // Clear entry field
+    els.wordEntry.value = '';
+    
+    // Update betting UI
+    updateBettingUI();
+  }
+
+  // Generate unique reference ID
+  function generateRef() {
+    return 'REF' + Date.now() + Math.random().toString(36).substr(2, 9).toUpperCase();
+  }
+
+  // Save comprehensive bet data to Firestore with 3-letter bet rules
+  async function saveBetToFirestore(result, net, winningDetails) {
+    if (!currentUser) {
+      console.error("No user logged in");
+      return;
+    }
+    
+    try {
+      const now = new Date();
+      const dayNames = ["sunday","monday","tuesday","wednesday","thursday","friday","saturday"];
+      const today = dayNames[now.getDay()];
+      const games = schedule[today] || [];
+      
+      let activeGame = null;
+      for (let i = 0; i < games.length; i++) {
+        const [startH, startM] = games[i].start.split(':').map(Number);
+        const [endH, endM] = games[i].end.split(':').map(Number);
+        const startTime = new Date();
+        startTime.setHours(startH, startM, 0, 0);
+        let endTime = new Date();
+        endTime.setHours(endH, endM, 0, 0);
+        if (endTime <= startTime) endTime.setDate(endTime.getDate() + 1);
+
+        if (now >= startTime && now < endTime) {
+          activeGame = games[i];
+          break;
+        }
+      }
+      
+      const session = activeGame;
+      const stake = parseFloat(els.bet.value);
+      const ref = generateRef();
+      const status = net >= 0 ? 'WIN' : 'LOSE';
+      const winningPerWord = calculateWinningPerWord(stake);
+      const odds = calculateOdds(stake);
+      
+      const betData = {
+        // User Information
+        userId: currentUser.uid,
+        userName: currentUser.displayName || currentUser.email,
+        userEmail: currentUser.email,
+        
+        // Game Information
+        gameName: session ? "3 Letters Bet - " + session.name : "3 Letters Bet",
+        gameType: "3_LETTER_BET",
+        keyLetter: session ? session.keyLetter : "ALL",
+        date: new Date().toISOString(),
+        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+        
+        // 3-Letter Bet Specific Rules
+        minStake: MIN_STAKE,
+        maxStake: MAX_STAKE,
+        minWinning: MIN_WINNING,
+        maxWinning: MAX_WINNING,
+        
+        // Bet Information - USING NORMAL WORD BET LOGIC
+        betId: ref,
+        stakeAmount: stake,
+        odds: odds,
+        wordsPlayed: slip,
+        wordsCount: slip.length,
+        totalStake: stake * slip.length,
+        winningPerWord: winningPerWord,
+        maxPotentialWinning: calculateTotalPotentialWinning(stake, slip.length),
+        betType: "3_LETTER_BET",
+        
+        // Result Information
+        status: status,
+        amountWonLost: net,
+        finalBalance: balance,
+        winningDetails: winningDetails,
+        
+        // Game Data
+        validWords: validWords,
+        wordsArranged: slip.map(word => ({
+          word: word,
+          isValid: validWords.includes(word),
+          stake: stake,
+          potentialWinning: winningPerWord,
+          actualWinning: validWords.includes(word) ? winningPerWord : -stake
+        })),
+        
+        // Additional Fields
+        reward: net > 0 ? net : 0,
+        ref: ref,
+        session: session ? `${session.start} - ${session.end}` : "Unknown"
+      };
+      
+      // Save to user's bet_history subcollection
+      await db.collection('users').doc(currentUser.uid)
+        .collection('bet_history').add(betData);
+        
+      console.log("3-letter bet data saved to Firestore");
+      return betData;
+    } catch (error) {
+      console.error("Error saving bet to Firestore:", error);
+      return null;
+    }
+  }
+
+  // Load bet history from Firestore
+  async function loadBetHistory() {
+    if (!currentUser) {
+      console.error("No user logged in");
+      return [];
+    }
+    
+    try {
+      const snapshot = await db.collection('users').doc(currentUser.uid)
+        .collection('bet_history')
+        .orderBy('timestamp', 'desc')
+        .limit(20)
+        .get();
+      
+      const history = [];
+      snapshot.forEach(doc => {
+        history.push({ id: doc.id, ...doc.data() });
+      });
+      
+      return history;
+    } catch (error) {
+      console.error("Error loading bet history:", error);
+      return [];
+    }
+  }
+
+  // Display bet history in modal
+  async function showBetHistory() {
+    const history = await loadBetHistory();
+    els.historyList.innerHTML = '';
+    
+    if (history.length === 0) {
+      els.noHistory.style.display = 'block';
+    } else {
+      els.noHistory.style.display = 'none';
+      history.forEach(bet => {
+        const item = document.createElement('div');
+        item.className = 'history-item';
+        
+        const left = document.createElement('div');
+        const date = document.createElement('div');
+        date.className = 'history-date';
+        date.textContent = new Date(bet.date).toLocaleString();
+        
+        const gameSession = document.createElement('div');
+        gameSession.className = 'history-words';
+        gameSession.textContent = `${bet.wordsPlayed.map(w => w.toUpperCase()).join(', ')}`;
+        
+        const stakeInfo = document.createElement('div');
+        stakeInfo.className = 'history-date';
+        stakeInfo.textContent = `Stake: ${currency}${bet.stakeAmount} (1:${bet.odds ? bet.odds.toFixed(2) : '10.00'})`;
+        
+        left.appendChild(date);
+        left.appendChild(gameSession);
+        left.appendChild(stakeInfo);
+        
+        const right = document.createElement('div');
+        const result = document.createElement('div');
+        result.className = `history-result ${bet.status === 'WIN' ? 'win' : 'lose'}`;
+        result.textContent = (bet.amountWonLost >= 0 ? '+' : '') + formatMoney(bet.amountWonLost);
+        
+        right.appendChild(result);
+        
+        item.appendChild(left);
+        item.appendChild(right);
+        els.historyList.appendChild(item);
+      });
+    }
+    
+    els.historyModal.style.display = 'grid';
+  }
+
+  // Enhanced dictionary loading with 3-letter words only
+  async function loadDict(){
+    try {
+      let allWords = [];
+      
+      // Try multiple online sources
+      const wordSources = [
+        fetchThreeLetterWords(),
+        getFallbackThreeLetterWords()
+      ];
+      
+      // Try each source until we get words
+      for (const source of wordSources) {
+        try {
+          const words = await source;
+          if (words && words.length > 0) {
+            allWords = [...allWords, ...words];
+            console.log(`Got ${words.length} 3-letter words from source`);
+            if (allWords.length >= 100) break; // Stop if we have enough words
+          }
+        } catch (e) {
+          console.log("Source failed:", e.message);
+        }
+      }
+      
+      // Remove duplicates
+      const uniqueWords = [...new Set(allWords)];
+      
+      if (uniqueWords.length > 0) {
+        notify(`Loaded ${uniqueWords.length} 3-letter words!`);
+        return uniqueWords;
+      } else {
+        throw new Error("No 3-letter words found from any source");
+      }
+    } catch (error) {
+      console.error("Failed to load 3-letter dictionary:", error);
+      notify("Using fallback 3-letter dictionary", "error");
+      return getFallbackThreeLetterWords();
+    }
+  }
+
+  // ---- EVENTS ----
+  els.clearSlip.addEventListener('click', clearSlip);
+  els.logoutBtn.addEventListener('click', logout);
+  els.historyBtn.addEventListener('click', showBetHistory);
+  els.historyClose.addEventListener('click', () => {
+    els.historyModal.style.display = 'none';
+  });
+  
+  // ADDED FROM SECOND CODE: Entry box event
+  els.addWordBtn.addEventListener('click', () => {
+    const word = els.wordEntry.value.trim().toLowerCase();
+    if (word) {
+      addToSlip(word);
+    } else {
+      notify("Please enter a 3-letter word", "error");
+    }
+  });
+  
+  // ADDED FROM SECOND CODE: Allow Enter key to add word
+  els.wordEntry.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+      els.addWordBtn.click();
+    }
+  });
+  
+  // ADDED FROM SECOND CODE: Limit entry to 3 characters
+  els.wordEntry.addEventListener('input', () => {
+    if (els.wordEntry.value.length > 3) {
+      els.wordEntry.value = els.wordEntry.value.substring(0, 3);
+    }
+    // Auto-uppercase
+    els.wordEntry.value = els.wordEntry.value.toUpperCase();
+  });
+  
+  // Stake amount input handler - USING NORMAL WORD BET LOGIC
+  els.bet.addEventListener('input', function() {
+    let stake = parseFloat(this.value);
+    
+    // Validate stake range
+    if (isNaN(stake)) {
+      stake = MIN_STAKE;
+      this.value = stake;
+    }
+    
+    if (stake < MIN_STAKE) {
+      stake = MIN_STAKE;
+      this.value = stake;
+      notify(`Minimum stake is ${formatMoney(MIN_STAKE)}`, "error");
+    }
+    
+    if (stake > MAX_STAKE) {
+      stake = MAX_STAKE;
+      this.value = stake;
+      notify(`Maximum stake is ${formatMoney(MAX_STAKE)}`, "error");
+    }
+    
+    // Update betting UI
+    updateBettingUI();
+  });
+  
+  // NEW: Search button event for 3-letter words
+  els.searchBtn.addEventListener('click', async () => {
+    const query = els.search.value.trim().toLowerCase();
+    if (!query) {
+      // If search is empty, show all words again
+      exactMatchWord = null;
+      featuredWord = null;
+      isSearchActive = false;
+      notify("Showing all 3-letter words");
+      renderGrid(currentWords);
+      return;
+    }
+    
+    if(query.length > 3) {
+      notify("Only 3-letter words allowed", "error");
+      els.search.value = query.substring(0, 3);
+      return;
+    }
+    
+    isSearchActive = true;
+    notify(`Searching for "${query}"...`);
+    const searchResults = await searchThreeLetterWords(query);
+    
+    if (searchResults.words.length === 0) {
+      notify(`No 3-letter words found for "${query}"`, "error");
+      return;
+    }
+    
+    // Set exact match word if found
+    exactMatchWord = searchResults.exactMatch;
+    
+    renderGrid(searchResults.words, exactMatchWord);
+    
+    if (exactMatchWord) {
+      notify(`Found exact match for "${query}"!`);
+    } else {
+      notify(`Found ${searchResults.words.length} related 3-letter words for "${query}"`);
+    }
+  });
+  
+  // Limit search input to 3 characters
+  els.search.addEventListener('input', () => {
+    if (els.search.value.length > 3) {
+      els.search.value = els.search.value.substring(0, 3);
+    }
+    if (els.search.value.trim() === '') {
+      isSearchActive = false;
+    }
+  });
+
+  // SUBMIT BET BUTTON - USING NORMAL WORD BET LOGIC
+  els.submitBtn.addEventListener('click', async ()=>{
+    if(!roundActive){
+      notify("Round finished. Start a new one.", "error");
+      return;
+    }
+
+    if(slip.length===0){ notify("Add at least one word to bet on","error"); return; }
+
+    const stake = parseFloat(els.bet.value);
+    const numWords = slip.length;
+    
+    // Check stake validity using Normal Word Bet logic
+    const stakeCheck = isStakeValid(stake, numWords);
+    if (!stakeCheck.valid) {
+      notify(stakeCheck.reason, "error");
+      return;
+    }
+    
+    const totalCost = stake * numWords;
+    if(totalCost > balance){ 
+      notify("Insufficient balance for all words", "error"); 
+      return; 
+    }
+
+    // Check maximum winning
+    const totalPotentialWinning = calculateTotalPotentialWinning(stake, numWords);
+    if (totalPotentialWinning === null) {
+      notify("Maximum winning exceeded! Please reduce your stake.", "error");
+      return;
+    }
+
+    roundActive=false;
+
+    // Evaluate each word using Normal Word Bet logic
+    let net = 0;
+    const winningPerWord = calculateWinningPerWord(stake);
+    
+    slip.forEach(w=>{
+      const ok = validWords.includes(w);
+      net += ok ? winningPerWord : -stake;
+    });
+
+    balance += net;
+    els.balance.textContent = formatMoney(balance);
+    
+    // Update user balance in Firestore
+    if (currentUser) {
+      try {
+        await db.collection('users').doc(currentUser.uid).update({
+          balance: balance
+        });
+      } catch (error) {
+        console.error("Error updating user balance:", error);
+      }
+    }
+    
+    // Save comprehensive data to Firestore
+    await saveBetToFirestore(net >= 0 ? 'WIN' : 'LOSE', net, []);
+
+    // Show success message - make sure it stays visible
+    const successMessage = `✅ Bet placed successfully! ${net >= 0 ? 'You won ' + formatMoney(net) : 'You lost ' + formatMoney(-net)}`;
+    notify(successMessage);
+    
+    // Wait for the success message to be seen before starting new round
+    setTimeout(async () => {
+      // Start new round WITHOUT showing "Loading 3-letter words..." notification
+      await startNewRound();
+      
+      // Optional: Show a subtle notification that new words are ready
+      setTimeout(() => {
+        notify("New round ready! Select words for your next bet.");
+      }, 300);
+    }, 1500); // Wait 1.5 seconds before starting new round
+  });
+
+  // help
+  els.helpBtn.addEventListener('click', ()=> els.helpModal.style.display='grid');
+  els.helpOk.addEventListener('click', ()=> els.helpModal.style.display='none');
+
+  // music toggle
+  function syncMusicUI(){
+    const on = !els.bg.paused;
+    els.musicToggle.setAttribute('aria-pressed', String(on));
+    els.musicToggle.querySelector('span').textContent = on ? "Sound On" : "Sound Off";
+    els.musicToggle.querySelector('i').className = on ? "fa-solid fa-music" : "fa-solid fa-music-slash";
+  }
+  els.musicToggle.addEventListener('click', async ()=>{
+    if(els.bg.paused){ try{ await els.bg.play(); }catch(e){} } else { els.bg.pause(); }
+    syncMusicUI();
+  });
+
+  // bubbles
+  function spawnBubbles(){
+    const n = 18;
+    for(let i=0;i<n;i++){
+      const b = document.createElement('div');
+      b.className='bubble';
+      const size = 10 + Math.random()*26;
+      b.style.width = size+'px';
+      b.style.height = size+'px';
+      b.style.left = (Math.random()*100)+'%';
+      b.style.setProperty('--dur', (12 + Math.random()*18) + 's');
+      b.style.animationDelay = (-Math.random()*20)+'s';
+      els.bubbles.appendChild(b);
+    }
+  }
+
+  // Check authentication state
+  function checkAuthState() {
+    auth.onAuthStateChanged(async (user) => {
+      if (user) {
+        currentUser = user;
+        // Show user info
+        els.userInfo.style.display = 'flex';
+        els.userName.textContent = user.displayName || user.email;
+        els.userAvatar.src = user.photoURL || 'https://via.placeholder.com/24';
+        els.logoutBtn.style.display = 'block';
+        
+        // Load user balance from Firestore
+        try {
+          const userDoc = await db.collection('users').doc(user.uid).get();
+          if (userDoc.exists) {
+            const userData = userDoc.data();
+            balance = userData.balance || 1000;
+            els.balance.textContent = formatMoney(balance);
+          }
+        } catch (error) {
+          console.error("Error loading user data:", error);
+        }
+      } else {
+        // No user is signed in, redirect to login
+        window.location.href = 'login.html';
+      }
+    });
+  }
+
+  // Logout function
+  function logout() {
+    auth.signOut().then(() => {
+      window.location.href = 'login.html';
+    }).catch((error) => {
+      console.error("Logout error:", error);
+    });
+  }
+
+  (async function init(){
+    // Check authentication
+    checkAuthState();
+    
+    // Set initial stake range display
+    els.stakeRangeDisplay.textContent = `${currency}${MIN_STAKE} - ${currency}${MAX_STAKE}`;
+    els.potentialWinning.textContent = `${formatMoney(MIN_WINNING)} - ${formatMoney(MAX_WINNING)}`;
+    
+    // restore balance
+    const saved = parseFloat(localStorage.getItem('three_letter_balance')||"0");
+    if(!isNaN(saved) && saved>0){ balance = saved; }
+    els.balance.textContent = formatMoney(balance);
+
+    notify("Loading 3-letter words dictionary…");
+    try{
+      dict = await loadDict();
+      notify(`Dictionary loaded with ${dict.length} 3-letter words!`);
+    }catch(e){
+      notify("Failed to load dictionary","error");
+      console.error("Dictionary loading error:", e);
+    }
+
+    // start audio automatically on init (attempt autoplay)
+    try{ 
+      await els.bg.play(); 
+      syncMusicUI(); // sync UI to reflect "on" state
+    } catch(e) {
+      console.warn("Autoplay failed, user interaction may be required.");
+      syncMusicUI(); // still sync UI in case it was paused
+    }
+
+    // visuals
+    spawnBubbles();
+
+    // Initialize countdown - ADDED HERE
+    initEnglaBetCountdown();
+
+    // Update game session UI
+    updateGameSessionUI();
+
+    // Initialize betting UI
+    updateBettingUI();
+
+    // kick off round
+    startNewRound();
+  })();
+})();
+</script>
+</body>
+</html>

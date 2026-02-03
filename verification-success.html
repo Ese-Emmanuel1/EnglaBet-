@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Verified - EnglaBet Agent</title>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary-dark: #0a2e5a;
+            --primary: #1a4789;
+            --primary-light: #2a5ca9;
+            --accent: #00a8d8;
+            --accent-light: #00d8e8;
+            --accent-gradient: linear-gradient(135deg, #00a8d8 0%, #00d8e8 100%);
+            --success: #2ecc71;
+            --warning: #ff9f43;
+            --danger: #ff3366;
+            --text-light: #ffffff;
+            --text-gray: #a0c1ed;
+            --text-dark: #0a2e5a;
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --sidebar-bg: #0f2b50;
+            --input-bg: #f8fafc;
+            --border-color: #e2e8f0;
+            --shadow: 0 10px 40px rgba(10, 46, 90, 0.15);
+            --radius: 12px;
+            --radius-lg: 16px;
+            --pink: #ff4b8f;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
+            color: var(--text-dark);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+        
+        .bg-pattern {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(circle at 20% 80%, rgba(0, 168, 216, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(26, 71, 137, 0.1) 0%, transparent 50%);
+            z-index: -1;
+        }
+        
+        .success-container {
+            background: var(--card-bg);
+            border-radius: var(--radius-lg);
+            padding: 60px 40px;
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+            box-shadow: var(--shadow);
+            animation: fadeIn 0.5s ease forwards;
+        }
+        
+        .success-icon {
+            font-size: 80px;
+            color: var(--success);
+            margin-bottom: 30px;
+        }
+        
+        .success-title {
+            font-size: 36px;
+            font-weight: 700;
+            color: var(--primary-dark);
+            margin-bottom: 20px;
+            font-family: 'Montserrat', sans-serif;
+        }
+        
+        .success-message {
+            font-size: 17px;
+            color: #666;
+            line-height: 1.7;
+            margin-bottom: 40px;
+        }
+        
+        .agent-details {
+            background: var(--input-bg);
+            border-radius: var(--radius);
+            padding: 25px;
+            margin: 30px 0;
+            text-align: left;
+        }
+        
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+        
+        .detail-label {
+            font-weight: 500;
+            color: #666;
+        }
+        
+        .detail-value {
+            font-weight: 600;
+            color: var(--primary-dark);
+        }
+        
+        .login-btn {
+            background: var(--accent-gradient);
+            color: white;
+            border: none;
+            padding: 18px 40px;
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 6px 20px rgba(0, 168, 216, 0.3);
+            margin-top: 20px;
+            text-decoration: none;
+        }
+        
+        .login-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 168, 216, 0.4);
+        }
+        
+        .note-box {
+            background: rgba(46, 204, 113, 0.1);
+            border: 1px solid rgba(46, 204, 113, 0.3);
+            border-radius: var(--radius);
+            padding: 20px;
+            margin-top: 30px;
+            text-align: left;
+        }
+        
+        .note-title {
+            font-weight: 600;
+            color: var(--success);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .note-text {
+            color: #666;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @media (max-width: 768px) {
+            .success-container {
+                padding: 40px 20px;
+            }
+            
+            .success-title {
+                font-size: 28px;
+            }
+            
+            .agent-details {
+                padding: 20px;
+            }
+            
+            .detail-row {
+                flex-direction: column;
+                gap: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-pattern"></div>
+    
+    <div class="success-container">
+        <div class="success-icon pulse">
+            <i class="fas fa-check-circle"></i>
+        </div>
+        
+        <h1 class="success-title">Account Created Successfully!</h1>
+        
+        <p class="success-message">
+            Congratulations! Your EnglaBet Agent account has been successfully verified and created. 
+            You can now log in to access your agent dashboard and start building your client network.
+        </p>
+        
+        <div class="agent-details">
+            <div class="detail-row">
+                <span class="detail-label">Account Status:</span>
+                <span class="detail-value" style="color: var(--success);">Active</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Email Verified:</span>
+                <span class="detail-value" style="color: var(--success);">Yes</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Account Type:</span>
+                <span class="detail-value">Professional Agent</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Verification Date:</span>
+                <span class="detail-value" id="verificationDate">Today</span>
+            </div>
+        </div>
+        
+        <a href="login.html" class="login-btn">
+            <i class="fas fa-sign-in-alt"></i> Login to Your Account
+        </a>
+        
+        <div class="note-box">
+            <div class="note-title">
+                <i class="fas fa-lightbulb"></i> Next Steps
+            </div>
+            <p class="note-text">
+                1. Log in to your agent dashboard<br>
+                2. Complete your agent profile (add more details)<br>
+                3. Set up your commission preferences<br>
+                4. Start inviting clients to join under you<br>
+                5. Access agent training materials
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // Set current date
+        document.getElementById('verificationDate').textContent = new Date().toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+        
+        // Redirect to login after 10 seconds if user doesn't click button
+        setTimeout(() => {
+            document.querySelector('.login-btn').innerHTML = '<i class="fas fa-sign-in-alt"></i> Redirecting to Login...';
+            setTimeout(() => {
+                window.location.href = 'login.html';
+            }, 2000);
+        }, 10000);
+    </script>
+</body>
+</html>

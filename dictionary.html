@@ -1,0 +1,1098 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Englabet Dictionary</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary-color: #2563eb;
+            --primary-dark: #1d4ed8;
+            --secondary-color: #7c3aed;
+            --text-primary: #1f2937;
+            --text-secondary: #6b7280;
+            --bg-primary: #ffffff;
+            --bg-secondary: #f9fafb;
+            --bg-tertiary: #f3f4f6;
+            --border-color: #e5e7eb;
+            --success-color: #10b981;
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            --radius-sm: 0.375rem;
+            --radius-md: 0.5rem;
+            --radius-lg: 0.75rem;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.5;
+            max-width: 100vw;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 100vw;
+            margin: 0 auto;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        
+        /* Header Styles */
+        header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 1.25rem 1rem;
+            box-shadow: var(--shadow-md);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            max-width: 100%;
+        }
+        
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .logo-img {
+            width: 40px;
+            height: 40px;
+            background-color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: var(--primary-color);
+            font-size: 1.25rem;
+        }
+        
+        .logo-text {
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: -0.025em;
+        }
+        
+        /* Search Container */
+        .search-container {
+            padding: 1rem 1rem 0.75rem;
+            background-color: var(--bg-primary);
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .search-box {
+            display: flex;
+            align-items: center;
+            background-color: var(--bg-tertiary);
+            border-radius: var(--radius-lg);
+            padding: 0.75rem 1rem;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-color);
+            transition: all 0.2s ease;
+        }
+        
+        .search-box:focus-within {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+        
+        .search-icon {
+            color: var(--text-secondary);
+            margin-right: 0.75rem;
+            font-size: 1.125rem;
+        }
+        
+        .search-input {
+            flex: 1;
+            border: none;
+            background: transparent;
+            font-size: 1rem;
+            color: var(--text-primary);
+            outline: none;
+        }
+        
+        .search-input::placeholder {
+            color: var(--text-secondary);
+        }
+        
+        .search-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: var(--radius-md);
+            padding: 0.5rem 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+        
+        .search-btn:hover {
+            background-color: var(--primary-dark);
+        }
+        
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 1rem;
+            max-width: 100%;
+            overflow-y: auto;
+        }
+        
+        /* Word Info Card */
+        .word-info-card {
+            background-color: var(--bg-primary);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid var(--border-color);
+            display: none;
+        }
+        
+        .word-info-card.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .word-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+        
+        .word-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            line-height: 1.2;
+        }
+        
+        .phonetic {
+            color: var(--text-secondary);
+            font-size: 1.125rem;
+            margin-top: 0.25rem;
+        }
+        
+        .audio-btn {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 50%;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary-color);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .audio-btn:hover {
+            background-color: var(--bg-tertiary);
+            transform: scale(1.05);
+        }
+        
+        .word-details {
+            margin-top: 1.5rem;
+        }
+        
+        .detail-section {
+            margin-bottom: 1.5rem;
+        }
+        
+        .section-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.75rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--border-color);
+        }
+        
+        .meaning-list {
+            list-style-type: none;
+        }
+        
+        .meaning-item {
+            margin-bottom: 1rem;
+            padding-left: 1rem;
+            position: relative;
+        }
+        
+        .meaning-item:before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            color: var(--primary-color);
+            font-weight: bold;
+        }
+        
+        .part-of-speech {
+            display: inline-block;
+            background-color: var(--bg-secondary);
+            color: var(--primary-color);
+            font-size: 0.875rem;
+            font-weight: 600;
+            padding: 0.25rem 0.75rem;
+            border-radius: var(--radius-sm);
+            margin-bottom: 0.5rem;
+        }
+        
+        .example {
+            font-style: italic;
+            color: var(--text-secondary);
+            margin-top: 0.5rem;
+            padding-left: 1rem;
+            border-left: 2px solid var(--border-color);
+        }
+        
+        /* Synonyms */
+        .synonyms-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+        
+        .synonym-tag {
+            background-color: var(--bg-secondary);
+            color: var(--text-primary);
+            padding: 0.375rem 0.75rem;
+            border-radius: var(--radius-md);
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 1px solid var(--border-color);
+        }
+        
+        .synonym-tag:hover {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+        
+        /* Loading and Error States */
+        .loading-indicator,
+        .error-message,
+        .welcome-message,
+        .no-results {
+            background-color: var(--bg-primary);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            padding: 2rem;
+            text-align: center;
+            margin-bottom: 1.5rem;
+            border: 1px solid var(--border-color);
+        }
+        
+        .loading-spinner {
+            width: 48px;
+            height: 48px;
+            border: 3px solid var(--bg-tertiary);
+            border-top: 3px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+        
+        .error-icon {
+            color: #ef4444;
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        
+        .welcome-icon {
+            color: var(--primary-color);
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        
+        .no-results-icon {
+            color: var(--text-secondary);
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        
+        /* API Source Indicator */
+        .api-source {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            text-align: right;
+            margin-top: 0.5rem;
+            font-style: italic;
+        }
+        
+        /* Recent Searches */
+        .recent-searches {
+            margin-top: 2rem;
+        }
+        
+        .recent-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.75rem;
+        }
+        
+        .recent-word {
+            background-color: var(--bg-secondary);
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius-md);
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 1px solid var(--border-color);
+        }
+        
+        .recent-word:hover {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+        
+        /* Suggested Words */
+        .suggested-words {
+            margin-top: 1.5rem;
+        }
+        
+        .suggested-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 0.75rem;
+            margin-top: 0.75rem;
+        }
+        
+        .suggested-word {
+            background-color: var(--bg-secondary);
+            padding: 0.75rem;
+            border-radius: var(--radius-md);
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 1px solid var(--border-color);
+        }
+        
+        .suggested-word:hover {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+        }
+        
+        /* Footer */
+        footer {
+            background-color: var(--bg-secondary);
+            padding: 1rem;
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            border-top: 1px solid var(--border-color);
+        }
+        
+        .footer-text {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.25rem;
+        }
+        
+        .heart {
+            color: #ef4444;
+        }
+        
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 480px) {
+            .word-title {
+                font-size: 1.75rem;
+            }
+            
+            .word-info-card {
+                padding: 1.25rem;
+            }
+            
+            .main-content {
+                padding: 0.75rem;
+            }
+            
+            .suggested-list {
+                grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            }
+        }
+        
+        /* Ensure no horizontal overflow */
+        html, body {
+            overflow-x: hidden;
+        }
+        
+        body {
+            position: relative;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="header-content">
+                <div class="logo-container">
+                    <div class="logo-img">E</div>
+                    <div class="logo-text">Englabet</div>
+                </div>
+                <div class="header-subtitle">Modern Dictionary</div>
+            </div>
+        </header>
+        
+        <div class="search-container">
+            <div class="search-box">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" class="search-input" id="searchInput" placeholder="Search for any word...">
+                <button class="search-btn" id="searchBtn">Search</button>
+            </div>
+        </div>
+        
+        <main class="main-content">
+            <!-- Welcome message (initial state) -->
+            <div class="welcome-message" id="welcomeMessage">
+                <div class="welcome-icon">
+                    <i class="fas fa-book-open"></i>
+                </div>
+                <h2>Welcome to Englabet Dictionary</h2>
+                <p>Search for any word to get definitions, examples, pronunciation, and synonyms.</p>
+                <p style="margin-top: 1rem; font-size: 0.9rem; color: var(--text-secondary);">Try searching for words like "dictionary", "eloquent", "serendipity", or "ubiquitous".</p>
+                
+                <div class="suggested-words">
+                    <h3>Try these words:</h3>
+                    <div class="suggested-list">
+                        <div class="suggested-word" data-word="dictionary">dictionary</div>
+                        <div class="suggested-word" data-word="computer">computer</div>
+                        <div class="suggested-word" data-word="language">language</div>
+                        <div class="suggested-word" data-word="beautiful">beautiful</div>
+                        <div class="suggested-word" data-word="knowledge">knowledge</div>
+                        <div class="suggested-word" data-word="technology">technology</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Loading indicator -->
+            <div class="loading-indicator" id="loadingIndicator" style="display: none;">
+                <div class="loading-spinner"></div>
+                <p>Searching for word definition...</p>
+            </div>
+            
+            <!-- Error message -->
+            <div class="error-message" id="errorMessage" style="display: none;">
+                <div class="error-icon">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <h2>Word Not Found</h2>
+                <p>Sorry, we couldn't find the definition for that word. Please check the spelling or try another word.</p>
+            </div>
+            
+            <!-- No results message -->
+            <div class="no-results" id="noResults" style="display: none;">
+                <div class="no-results-icon">
+                    <i class="fas fa-search"></i>
+                </div>
+                <h2>No Results Found</h2>
+                <p>Try searching for a different word or check your spelling.</p>
+            </div>
+            
+            <!-- Word information card -->
+            <div class="word-info-card" id="wordInfoCard">
+                <div class="word-header">
+                    <div>
+                        <h1 class="word-title" id="wordTitle">Dictionary</h1>
+                        <div class="phonetic" id="wordPhonetic">/ˈdɪkʃəˌnɛri/</div>
+                    </div>
+                    <button class="audio-btn" id="audioBtn">
+                        <i class="fas fa-volume-up"></i>
+                    </button>
+                </div>
+                
+                <div class="word-details">
+                    <div class="detail-section">
+                        <h3 class="section-title">Meaning & Definitions</h3>
+                        <ul class="meaning-list" id="meaningList">
+                            <!-- Meanings will be populated here -->
+                        </ul>
+                    </div>
+                    
+                    <div class="detail-section">
+                        <h3 class="section-title">Synonyms</h3>
+                        <div class="synonyms-container" id="synonymsContainer">
+                            <!-- Synonyms will be populated here -->
+                        </div>
+                    </div>
+                    
+                    <div class="api-source" id="apiSource">
+                        Data source: Free Dictionary API
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Recent searches -->
+            <div class="recent-searches" id="recentSearches" style="display: none;">
+                <h3 class="section-title">Recent Searches</h3>
+                <div class="recent-list" id="recentList">
+                    <!-- Recent words will be populated here -->
+                </div>
+            </div>
+            
+            <!-- Suggested words -->
+            <div class="suggested-words" id="suggestedWords" style="display: none;">
+                <h3 class="section-title">You might also like:</h3>
+                <div class="suggested-list" id="suggestedList">
+                    <!-- Suggested words will be populated here -->
+                </div>
+            </div>
+        </main>
+        
+        <footer>
+            <div class="footer-text">
+                <span>Englabet Dictionary</span>
+                <span>•</span>
+                <span>Powered by Free Dictionary API</span>
+                <span>•</span>
+                <span>Made with <i class="fas fa-heart heart"></i> for word lovers</span>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // DOM Elements
+        const searchInput = document.getElementById('searchInput');
+        const searchBtn = document.getElementById('searchBtn');
+        const welcomeMessage = document.getElementById('welcomeMessage');
+        const loadingIndicator = document.getElementById('loadingIndicator');
+        const errorMessage = document.getElementById('errorMessage');
+        const noResults = document.getElementById('noResults');
+        const wordInfoCard = document.getElementById('wordInfoCard');
+        const wordTitle = document.getElementById('wordTitle');
+        const wordPhonetic = document.getElementById('wordPhonetic');
+        const audioBtn = document.getElementById('audioBtn');
+        const meaningList = document.getElementById('meaningList');
+        const synonymsContainer = document.getElementById('synonymsContainer');
+        const recentSearches = document.getElementById('recentSearches');
+        const recentList = document.getElementById('recentList');
+        const suggestedWords = document.getElementById('suggestedWords');
+        const suggestedList = document.getElementById('suggestedList');
+        const apiSource = document.getElementById('apiSource');
+        
+        // Dictionary APIs
+        const APIs = {
+            freeDictionary: 'https://api.dictionaryapi.dev/api/v2/entries/en/',
+            wordnik: 'https://api.wordnik.com/v4/word.json/', // Requires API key
+            merriamWebster: 'https://www.dictionaryapi.com/api/v3/references/collegiate/json/' // Requires API key
+        };
+        
+        // Suggested words for when no results are found
+        const suggestedWordList = [
+            'dictionary', 'computer', 'language', 'beautiful', 'knowledge', 
+            'technology', 'innovation', 'education', 'creativity', 'inspiration',
+            'science', 'philosophy', 'literature', 'history', 'mathematics',
+            'music', 'art', 'culture', 'society', 'development'
+        ];
+        
+        // Recent searches storage
+        let recentWords = JSON.parse(localStorage.getItem('englaRecentWords')) || ['dictionary', 'computer', 'language'];
+        
+        // Initialize the app
+        function initApp() {
+            // Display recent searches if any
+            updateRecentSearches();
+            
+            // Set focus to search input
+            searchInput.focus();
+            
+            // Add event listeners
+            searchBtn.addEventListener('click', handleSearch);
+            searchInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    handleSearch();
+                }
+            });
+            
+            // Add audio button event listener
+            audioBtn.addEventListener('click', playAudio);
+            
+            // Add suggested word click listeners
+            document.querySelectorAll('.suggested-word').forEach(word => {
+                word.addEventListener('click', function() {
+                    searchInput.value = this.getAttribute('data-word');
+                    handleSearch();
+                });
+            });
+            
+            // Show welcome message initially
+            showElement(welcomeMessage);
+            showSuggestedWords();
+        }
+        
+        // Handle search functionality
+        function handleSearch() {
+            const searchTerm = searchInput.value.trim().toLowerCase();
+            
+            if (!searchTerm) {
+                showElement(noResults);
+                hideElement(welcomeMessage);
+                hideElement(wordInfoCard);
+                hideElement(errorMessage);
+                hideElement(loadingIndicator);
+                return;
+            }
+            
+            // Show loading indicator
+            showElement(loadingIndicator);
+            hideElement(welcomeMessage);
+            hideElement(wordInfoCard);
+            hideElement(errorMessage);
+            hideElement(noResults);
+            
+            // Fetch data from API
+            fetchWordData(searchTerm);
+        }
+        
+        // Fetch word data from API
+        async function fetchWordData(word) {
+            try {
+                // Try Free Dictionary API first
+                const response = await fetch(`${APIs.freeDictionary}${word}`);
+                
+                if (!response.ok) {
+                    throw new Error('Word not found');
+                }
+                
+                const data = await response.json();
+                
+                // Hide loading indicator
+                hideElement(loadingIndicator);
+                
+                // Process and display the data
+                displayWordDataFromAPI(data);
+                addToRecentSearches(word);
+                
+            } catch (error) {
+                console.log('Free Dictionary API failed, trying fallback...');
+                
+                // If API fails, try fallback sample data
+                try {
+                    const fallbackData = getFallbackWordData(word);
+                    
+                    if (fallbackData) {
+                        hideElement(loadingIndicator);
+                        displayWordData(fallbackData);
+                        addToRecentSearches(word);
+                        apiSource.textContent = "Data source: Sample Dictionary Data";
+                    } else {
+                        // No results found
+                        hideElement(loadingIndicator);
+                        showElement(noResults);
+                        showSuggestedWords();
+                    }
+                } catch (fallbackError) {
+                    console.log('Fallback also failed');
+                    hideElement(loadingIndicator);
+                    showElement(noResults);
+                    showSuggestedWords();
+                }
+            }
+        }
+        
+        // Display word data from API response
+        function displayWordDataFromAPI(apiData) {
+            // Hide loading and other elements
+            hideElement(loadingIndicator);
+            hideElement(errorMessage);
+            hideElement(noResults);
+            hideElement(welcomeMessage);
+            
+            // Extract data from API response
+            const wordData = apiData[0];
+            
+            // Update word info
+            wordTitle.textContent = wordData.word;
+            wordPhonetic.textContent = wordData.phonetic || wordData.phonetics?.[0]?.text || '/Not available/';
+            
+            // Clear previous meanings and synonyms
+            meaningList.innerHTML = '';
+            synonymsContainer.innerHTML = '';
+            
+            // Populate meanings
+            if (wordData.meanings && wordData.meanings.length > 0) {
+                wordData.meanings.forEach(meaning => {
+                    const meaningItem = document.createElement('li');
+                    meaningItem.className = 'meaning-item';
+                    
+                    const partOfSpeech = document.createElement('div');
+                    partOfSpeech.className = 'part-of-speech';
+                    partOfSpeech.textContent = meaning.partOfSpeech;
+                    
+                    meaningItem.appendChild(partOfSpeech);
+                    
+                    if (meaning.definitions && meaning.definitions.length > 0) {
+                        // Show first 3 definitions max
+                        const definitionsToShow = meaning.definitions.slice(0, 3);
+                        
+                        definitionsToShow.forEach((def, index) => {
+                            const definition = document.createElement('div');
+                            definition.textContent = `${index + 1}. ${def.definition}`;
+                            meaningItem.appendChild(definition);
+                            
+                            if (def.example) {
+                                const example = document.createElement('div');
+                                example.className = 'example';
+                                example.textContent = `Example: "${def.example}"`;
+                                meaningItem.appendChild(example);
+                            }
+                        });
+                    }
+                    
+                    meaningList.appendChild(meaningItem);
+                    
+                    // Add synonyms if available
+                    if (meaning.synonyms && meaning.synonyms.length > 0) {
+                        // Show first 5 synonyms max
+                        const synonymsToShow = meaning.synonyms.slice(0, 5);
+                        
+                        synonymsToShow.forEach(synonym => {
+                            const synonymTag = document.createElement('div');
+                            synonymTag.className = 'synonym-tag';
+                            synonymTag.textContent = synonym;
+                            synonymTag.addEventListener('click', () => {
+                                searchInput.value = synonym;
+                                handleSearch();
+                            });
+                            
+                            synonymsContainer.appendChild(synonymTag);
+                        });
+                    }
+                });
+            } else {
+                meaningList.innerHTML = '<li class="meaning-item">No definitions available for this word.</li>';
+            }
+            
+            // If no synonyms were added from meanings, add default message
+            if (synonymsContainer.children.length === 0) {
+                const noSynonyms = document.createElement('div');
+                noSynonyms.textContent = 'No synonyms available';
+                noSynonyms.style.color = 'var(--text-secondary)';
+                noSynonyms.style.fontStyle = 'italic';
+                synonymsContainer.appendChild(noSynonyms);
+            }
+            
+            // Show the word info card
+            showElement(wordInfoCard);
+            
+            // Update API source
+            apiSource.textContent = "Data source: Free Dictionary API";
+            
+            // Update recent searches display
+            updateRecentSearches();
+            
+            // Show suggested words
+            showSuggestedWords();
+        }
+        
+        // Fallback sample data for when API fails
+        function getFallbackWordData(word) {
+            const fallbackData = {
+                "dictionary": {
+                    word: "dictionary",
+                    phonetic: "/ˈdɪkʃəˌnɛri/",
+                    meanings: [{
+                        partOfSpeech: "noun",
+                        definitions: [{
+                            definition: "A book or electronic resource that lists the words of a language and gives their meaning.",
+                            example: "I looked up the word in the dictionary to check its spelling."
+                        }]
+                    }],
+                    synonyms: ["lexicon", "wordbook", "vocabulary", "glossary"]
+                },
+                "computer": {
+                    word: "computer",
+                    phonetic: "/kəmˈpjuːtə/",
+                    meanings: [{
+                        partOfSpeech: "noun",
+                        definitions: [{
+                            definition: "An electronic device for storing and processing data.",
+                            example: "She works on her computer for eight hours a day."
+                        }]
+                    }],
+                    synonyms: ["PC", "machine", "processor", "workstation"]
+                },
+                "language": {
+                    word: "language",
+                    phonetic: "/ˈlaŋɡwɪdʒ/",
+                    meanings: [{
+                        partOfSpeech: "noun",
+                        definitions: [{
+                            definition: "The method of human communication, either spoken or written.",
+                            example: "English is a widely spoken language around the world."
+                        }]
+                    }],
+                    synonyms: ["tongue", "speech", "dialect", "communication"]
+                },
+                "beautiful": {
+                    word: "beautiful",
+                    phonetic: "/ˈbjuːtɪf(ə)l/",
+                    meanings: [{
+                        partOfSpeech: "adjective",
+                        definitions: [{
+                            definition: "Pleasing the senses or mind aesthetically.",
+                            example: "The sunset over the ocean was incredibly beautiful."
+                        }]
+                    }],
+                    synonyms: ["attractive", "gorgeous", "lovely", "stunning"]
+                },
+                "knowledge": {
+                    word: "knowledge",
+                    phonetic: "/ˈnɒlɪdʒ/",
+                    meanings: [{
+                        partOfSpeech: "noun",
+                        definitions: [{
+                            definition: "Facts, information, and skills acquired through experience or education.",
+                            example: "He has extensive knowledge of ancient history."
+                        }]
+                    }],
+                    synonyms: ["understanding", "wisdom", "expertise", "awareness"]
+                }
+            };
+            
+            return fallbackData[word];
+        }
+        
+        // Display word data from fallback
+        function displayWordData(wordData) {
+            // Hide loading and other elements
+            hideElement(loadingIndicator);
+            hideElement(errorMessage);
+            hideElement(noResults);
+            hideElement(welcomeMessage);
+            
+            // Update word info
+            wordTitle.textContent = wordData.word;
+            wordPhonetic.textContent = wordData.phonetic;
+            
+            // Clear previous meanings and synonyms
+            meaningList.innerHTML = '';
+            synonymsContainer.innerHTML = '';
+            
+            // Populate meanings
+            wordData.meanings.forEach(meaning => {
+                const meaningItem = document.createElement('li');
+                meaningItem.className = 'meaning-item';
+                
+                const partOfSpeech = document.createElement('div');
+                partOfSpeech.className = 'part-of-speech';
+                partOfSpeech.textContent = meaning.partOfSpeech;
+                
+                meaningItem.appendChild(partOfSpeech);
+                
+                meaning.definitions.forEach((def, index) => {
+                    const definition = document.createElement('div');
+                    definition.textContent = `${index + 1}. ${def.definition}`;
+                    meaningItem.appendChild(definition);
+                    
+                    if (def.example) {
+                        const example = document.createElement('div');
+                        example.className = 'example';
+                        example.textContent = `Example: "${def.example}"`;
+                        meaningItem.appendChild(example);
+                    }
+                });
+                
+                meaningList.appendChild(meaningItem);
+            });
+            
+            // Populate synonyms
+            wordData.synonyms.forEach(synonym => {
+                const synonymTag = document.createElement('div');
+                synonymTag.className = 'synonym-tag';
+                synonymTag.textContent = synonym;
+                synonymTag.addEventListener('click', () => {
+                    searchInput.value = synonym;
+                    handleSearch();
+                });
+                
+                synonymsContainer.appendChild(synonymTag);
+            });
+            
+            // Show the word info card
+            showElement(wordInfoCard);
+            
+            // Update recent searches display
+            updateRecentSearches();
+            
+            // Show suggested words
+            showSuggestedWords();
+        }
+        
+        // Add word to recent searches
+        function addToRecentSearches(word) {
+            // Remove if already exists
+            const index = recentWords.indexOf(word);
+            if (index !== -1) {
+                recentWords.splice(index, 1);
+            }
+            
+            // Add to beginning
+            recentWords.unshift(word);
+            
+            // Keep only last 5 words
+            if (recentWords.length > 5) {
+                recentWords = recentWords.slice(0, 5);
+            }
+            
+            // Save to localStorage
+            localStorage.setItem('englaRecentWords', JSON.stringify(recentWords));
+        }
+        
+        // Update recent searches display
+        function updateRecentSearches() {
+            if (recentWords.length === 0) {
+                hideElement(recentSearches);
+                return;
+            }
+            
+            // Clear current list
+            recentList.innerHTML = '';
+            
+            // Add recent words
+            recentWords.forEach(word => {
+                const recentWord = document.createElement('div');
+                recentWord.className = 'recent-word';
+                recentWord.textContent = word;
+                recentWord.addEventListener('click', () => {
+                    searchInput.value = word;
+                    handleSearch();
+                });
+                
+                recentList.appendChild(recentWord);
+            });
+            
+            showElement(recentSearches);
+        }
+        
+        // Show suggested words
+        function showSuggestedWords() {
+            // Clear current list
+            suggestedList.innerHTML = '';
+            
+            // Get random suggested words (excluding recent ones)
+            const availableWords = suggestedWordList.filter(word => !recentWords.includes(word));
+            const randomWords = availableWords.sort(() => 0.5 - Math.random()).slice(0, 6);
+            
+            // Add suggested words
+            randomWords.forEach(word => {
+                const suggestedWord = document.createElement('div');
+                suggestedWord.className = 'suggested-word';
+                suggestedWord.textContent = word;
+                suggestedWord.setAttribute('data-word', word);
+                suggestedWord.addEventListener('click', () => {
+                    searchInput.value = word;
+                    handleSearch();
+                });
+                
+                suggestedList.appendChild(suggestedWord);
+            });
+            
+            showElement(suggestedWords);
+        }
+        
+        // Play pronunciation audio
+        function playAudio() {
+            const word = wordTitle.textContent;
+            
+            // Try to find audio URL from API response if available
+            // For now, use the Web Speech API as fallback
+            const utterance = new SpeechSynthesisUtterance(word);
+            utterance.rate = 0.8;
+            utterance.pitch = 1;
+            utterance.volume = 1;
+            
+            // Try to use a specific voice if available
+            const voices = window.speechSynthesis.getVoices();
+            const englishVoice = voices.find(voice => 
+                voice.lang.startsWith('en')
+            );
+            
+            if (englishVoice) {
+                utterance.voice = englishVoice;
+            }
+            
+            window.speechSynthesis.speak(utterance);
+            
+            // Add visual feedback
+            audioBtn.innerHTML = '<i class="fas fa-volume-up"></i>';
+            audioBtn.style.backgroundColor = 'var(--primary-color)';
+            audioBtn.style.color = 'white';
+            
+            setTimeout(() => {
+                audioBtn.innerHTML = '<i class="fas fa-volume-up"></i>';
+                audioBtn.style.backgroundColor = '';
+                audioBtn.style.color = '';
+            }, 500);
+        }
+        
+        // Helper functions to show/hide elements
+        function showElement(element) {
+            element.style.display = 'block';
+        }
+        
+        function hideElement(element) {
+            element.style.display = 'none';
+        }
+        
+        // Initialize the app when DOM is loaded
+        document.addEventListener('DOMContentLoaded', initApp);
+        
+        // Pre-populate with "dictionary" on initial load
+        window.addEventListener('load', function() {
+            // Show the dictionary word on first load
+            setTimeout(() => {
+                searchInput.value = 'dictionary';
+                handleSearch();
+            }, 300);
+            
+            // Load voices for speech synthesis
+            if (speechSynthesis.onvoiceschanged !== undefined) {
+                speechSynthesis.onvoiceschanged = function() {
+                    // Voices loaded
+                };
+            }
+        });
+    </script>
+</body>
+</html>

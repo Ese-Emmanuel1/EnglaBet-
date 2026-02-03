@@ -1,0 +1,2379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Game History — EnglaBet</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <!-- html2pdf library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <!-- html2canvas library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <!-- Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.7/dist/umd/supabase.min.js"></script>
+  <style>
+    :root{
+      --ocean-900: #003f63;
+      --ocean-800: #005a87;
+      --ocean-700: #0072a8;
+      --ocean-600: #0089c7;
+      --ocean-500: #00a0ff;
+      --ocean-400: #33b3ff;
+      --ocean-300: #66c6ff;
+      --ocean-200: #99d9ff;
+      --ocean-100: #ccecff;
+      --ocean-50: #e6f5ff;
+      --white: #ffffff;
+      --gray-50: #f9fafb;
+      --gray-100: #f3f4f6;
+      --gray-200: #e5e7eb;
+      --gray-300: #d1d5db;
+      --gray-400: #9ca3af;
+      --gray-500: #6b7280;
+      --gray-600: #4b5563;
+      --gray-700: #374151;
+      --gray-800: #1f2937;
+      --gray-900: #111827;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #dc2626;
+      --card-radius: 12px;
+      --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+      --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+      --shadow-lg: 0 10px 25px rgba(0, 63, 99, 0.15);
+      --shadow-xl: 0 20px 50px rgba(0, 63, 99, 0.2);
+      font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    }
+
+    html,body{
+      height:100%;
+      margin:0;
+      padding:0;
+      background: linear-gradient(180deg, #eaf8ff 0%, #f7fbff 100%);
+      color: #0b1220;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      overflow-x: hidden;
+    }
+
+    /* Page container - MOBILE FIRST */
+    .page {
+      width: 100%;
+      margin: 0 auto;
+      padding: 16px;
+      box-sizing: border-box;
+      min-height: 100vh;
+    }
+
+    header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 12px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .brand {
+      display:flex;
+      align-items:center;
+      gap: 10px;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .logo {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      box-shadow: var(--shadow-md);
+      background: white;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .logo img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      border-radius: 10px;
+    }
+
+    .brand-text {
+      min-width: 0;
+    }
+
+    h1 {
+      margin:0;
+      font-size: 18px;
+      font-weight:700;
+      color:var(--ocean-900);
+      line-height: 1.2;
+    }
+
+    .sub {
+      color:var(--gray-500);
+      font-size: 12px;
+      margin-top: 2px;
+    }
+
+    /* Controls */
+    .controls {
+      display:flex;
+      gap: 8px;
+      align-items:center;
+      width: 100%;
+      margin-top: 12px;
+      order: 3;
+    }
+
+    .search {
+      background:var(--white);
+      border-radius: 12px;
+      padding: 10px 14px;
+      box-shadow: var(--shadow-md);
+      display:flex;
+      gap: 8px;
+      align-items:center;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .search input{
+      border:0;
+      outline:none;
+      font-size: 14px;
+      width: 100%;
+      background: transparent;
+      color: var(--gray-900);
+    }
+
+    .filter-btn{
+      background:var(--white);
+      border:1px solid rgba(0,0,0,0.06);
+      padding: 10px 12px;
+      border-radius: 10px;
+      font-weight:600;
+      cursor:pointer;
+      box-shadow:var(--shadow-md);
+      font-size: 13px;
+      white-space: nowrap;
+      color: var(--gray-700);
+    }
+
+    .filter-btn:hover {
+      border-color: var(--ocean-300);
+      color: var(--ocean-700);
+    }
+
+    .filter-btn.active {
+      background: linear-gradient(90deg,var(--ocean-700), var(--ocean-500));
+      border-color: var(--ocean-500);
+      color: var(--white);
+      box-shadow: 0 6px 20px rgba(0,112,168,0.2);
+    }
+
+    /* List container */
+    .list {
+      display:flex;
+      flex-direction:column;
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    /* Loading state */
+    .loading {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--gray-500);
+      font-size: 14px;
+    }
+
+    .loading-spinner {
+      width: 24px;
+      height: 24px;
+      border: 2px solid var(--ocean-300);
+      border-top: 2px solid var(--ocean-700);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 12px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Empty state */
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--gray-500);
+    }
+
+    .empty-state svg {
+      width: 64px;
+      height: 64px;
+      margin-bottom: 16px;
+      opacity: 0.5;
+    }
+
+    /* Compact Receipt Row */
+    .receipt {
+      background: linear-gradient(90deg, rgba(255,255,255,0.95), rgba(255,255,255,0.9));
+      border-radius: var(--card-radius);
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+      border-left: 4px solid transparent;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      box-shadow: var(--shadow-md);
+      position: relative;
+      border: 1px solid var(--ocean-100);
+    }
+
+    .receipt.win {
+      border-left-color: var(--success);
+    }
+
+    .receipt.lose {
+      border-left-color: var(--danger);
+    }
+
+    .receipt.pending {
+      border-left-color: var(--warning);
+    }
+
+    .receipt:hover{
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .receipt-content {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      gap: 12px;
+    }
+
+    .receipt-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+      flex: 1;
+    }
+
+    .game-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, var(--ocean-700), var(--ocean-500));
+      color: var(--white);
+      font-weight: 800;
+      font-size: 12px;
+      box-shadow: 0 4px 12px rgba(0,112,168,0.25);
+      flex-shrink: 0;
+    }
+
+    .receipt-info {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      min-width: 0;
+      flex: 1;
+    }
+
+    .game-title {
+      font-weight: 700;
+      color: var(--ocean-900);
+      letter-spacing: 0.4px;
+      font-size: 14px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 100%;
+    }
+
+    .game-meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: var(--gray-500);
+    }
+
+    .status-badge {
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .status-badge.won {
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--success);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .status-badge.lost {
+      background: rgba(220, 38, 38, 0.15);
+      color: var(--danger);
+      border: 1px solid rgba(220, 38, 38, 0.3);
+    }
+
+    .status-badge.pending {
+      background: rgba(245, 158, 11, 0.15);
+      color: var(--warning);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+
+    .game-stats {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--gray-500);
+    }
+
+    .receipt-right {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 4px;
+      flex-shrink: 0;
+    }
+
+    .amount {
+      font-weight: 800;
+      font-size: 16px;
+      white-space: nowrap;
+    }
+
+    .amount.plus {
+      color: var(--success);
+    }
+
+    .amount.minus {
+      color: var(--danger);
+    }
+
+    .time-ago {
+      font-size: 11px;
+      color: var(--gray-500);
+      white-space: nowrap;
+    }
+
+    /* NEW: Bet Slip Button */
+    .bet-slip-btn {
+      background: var(--ocean-50);
+      border: 1px solid var(--ocean-200);
+      color: var(--ocean-700);
+      font-size: 11px;
+      font-weight: 600;
+      padding: 4px 8px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      margin-left: 8px;
+      white-space: nowrap;
+    }
+
+    .bet-slip-btn:hover {
+      background: var(--ocean-100);
+      border-color: var(--ocean-300);
+      transform: translateY(-1px);
+    }
+
+    /* Modal (pop-out) - UPDATED FOR NEW RESULT LAYOUT - SMALLER */
+    .overlay {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(3,10,34,0.75);
+      backdrop-filter: blur(6px);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .22s ease;
+      z-index: 60;
+      padding: 16px;
+      box-sizing: border-box;
+    }
+
+    .overlay.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal {
+      width: 100%;
+      max-width: 360px;
+      max-height: 85vh;
+      overflow: auto;
+      border-radius: 12px;
+      background: linear-gradient(180deg, var(--white), #fbfeff);
+      box-shadow: 0 15px 40px rgba(3,10,34,0.45);
+      transform: translateY(10px) scale(.99);
+      transition: transform .28s cubic-bezier(.2,.9,.3,1);
+      position: relative;
+      border: 1px solid rgba(0,0,0,0.04);
+    }
+
+    .overlay.open .modal {
+      transform: translateY(0) scale(1);
+    }
+
+    .modal-header {
+      background: linear-gradient(135deg, var(--ocean-700), var(--ocean-500));
+      padding: 14px 14px 10px 14px;
+      border-top-left-radius: 12px;
+      border-top-right-radius: 12px;
+      color: var(--white);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: relative;
+    }
+
+    .modal-title {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .modal-game {
+      font-size: 15px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+    }
+
+    .modal-subtitle {
+      font-size: 10px;
+      opacity: 0.95;
+      font-weight: 600;
+    }
+
+    .close-btn {
+      background: rgba(255,255,255,0.12);
+      border: none;
+      padding: 6px;
+      border-radius: 8px;
+      color: var(--white);
+      cursor: pointer;
+      font-weight: 700;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+      width: 26px;
+      height: 26px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+      font-size: 12px;
+    }
+
+    .close-btn:hover {
+      background: rgba(255,255,255,0.2);
+      transform: rotate(90deg);
+    }
+
+    .modal-body {
+      padding: 14px;
+      font-size: 13px;
+    }
+
+    /* NEW: Result Screen Layout as per your structure - SMALLER */
+    .result-header {
+      text-align: center;
+      margin-bottom: 14px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid var(--ocean-200);
+    }
+
+    .result-title {
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--ocean-900);
+      letter-spacing: 0.6px;
+      text-transform: uppercase;
+    }
+
+    /* Result Table Style */
+    .result-table {
+      width: 100%;
+      margin-bottom: 18px;
+      border-collapse: collapse;
+    }
+
+    .result-table-row {
+      display: flex;
+      margin-bottom: 7px;
+      align-items: center;
+    }
+
+    .result-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--ocean-800);
+      width: 95px;
+      flex-shrink: 0;
+      text-transform: uppercase;
+      letter-spacing: 0.2px;
+    }
+
+    .result-value {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--gray-900); /* Changed to black */
+      flex: 1;
+      padding-left: 14px;
+    }
+
+    .result-value.keyletter {
+      color: var(--gray-900); /* Changed to black */
+      font-size: 18px;
+      font-weight: 800;
+    }
+
+    .result-value.keyword {
+      color: var(--gray-900); /* Changed to black */
+      font-size: 15px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .result-value.wordsplit {
+      color: var(--gray-900); /* Changed to black */
+      font-size: 15px;
+      font-weight: 800;
+      letter-spacing: 1.5px;
+      font-family: monospace;
+    }
+
+    .result-value.rival {
+      color: var(--gray-900); /* Changed to black */
+      font-size: 15px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    /* NEW: Loading indicator for rival word */
+    .rival-loading {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--gray-500);
+    }
+
+    .rival-spinner {
+      width: 12px;
+      height: 12px;
+      border: 2px solid var(--ocean-300);
+      border-top: 2px solid var(--ocean-700);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    /* Overview Section */
+    .overview-section {
+      margin-top: 18px;
+      padding-top: 14px;
+      border-top: 2px solid var(--ocean-200);
+    }
+
+    .overview-title {
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--ocean-900);
+      margin-bottom: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+    }
+
+    .possible-words-list {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      max-height: 200px;
+      overflow-y: auto;
+      padding-right: 5px;
+    }
+
+    .word-row {
+      display: flex;
+      align-items: center;
+      padding: 6px 0;
+      border-bottom: 1px solid var(--gray-200);
+    }
+
+    .word-text {
+      font-size: 13px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--gray-800);
+    }
+
+    /* REMOVED: Colors for bet words in overview - all words are black now */
+    /* .word-text.matched {
+      color: var(--success);
+    }
+
+    .word-text.not-matched {
+      color: var(--danger);
+    }
+
+    .word-text.void {
+      color: var(--warning);
+    } */
+
+    /* Action Buttons */
+    .action-buttons {
+      display: flex;
+      gap: 8px;
+      margin-top: 18px;
+      padding-top: 14px;
+      border-top: 1px solid rgba(0,112,168,0.1);
+    }
+
+    /* Hide action buttons when printing/downloading */
+    @media print {
+      .action-buttons {
+        display: none !important;
+      }
+      
+      .overlay {
+        position: static;
+        background: transparent;
+        backdrop-filter: none;
+        opacity: 1;
+        pointer-events: auto;
+        padding: 0;
+      }
+      
+      .modal {
+        max-width: 100%;
+        max-height: none;
+        box-shadow: none;
+        border: none;
+        border-radius: 0;
+      }
+      
+      .modal-header {
+        display: none;
+      }
+      
+      .modal-body {
+        padding: 0;
+      }
+    }
+
+    .no-print {
+      /* Used to hide elements during print/PDF generation */
+    }
+
+    .btn {
+      flex: 1;
+      border-radius: 8px;
+      padding: 9px 10px;
+      border: 0;
+      font-weight: 700;
+      cursor: pointer;
+      font-size: 12px;
+      transition: all 0.2s ease;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+    }
+
+    .btn.primary {
+      background: linear-gradient(90deg, var(--ocean-700), var(--ocean-500));
+      color: var(--white);
+      box-shadow: 0 6px 20px rgba(0,112,168,0.2);
+    }
+
+    .btn.primary:hover {
+      background: linear-gradient(90deg, var(--ocean-800), var(--ocean-600));
+      box-shadow: 0 8px 25px rgba(0,112,168,0.3);
+    }
+
+    .btn.secondary {
+      background: var(--white);
+      border: 1px solid var(--ocean-300);
+      color: var(--ocean-700);
+    }
+
+    .btn.secondary:hover {
+      background: var(--ocean-50);
+      border-color: var(--ocean-500);
+    }
+
+    /* Download Options Modal */
+    .download-modal {
+      position: fixed;
+      inset: 0;
+      display: none;
+      place-items: center;
+      z-index: 80;
+      background: rgba(3,10,34,0.75);
+      backdrop-filter: blur(6px);
+      padding: 16px;
+      box-sizing: border-box;
+    }
+
+    .download-modal.open {
+      display: grid;
+    }
+
+    .download-container {
+      width: 100%;
+      max-width: 360px;
+      border-radius: 12px;
+      background: linear-gradient(180deg, var(--white), #fbfeff);
+      box-shadow: 0 15px 40px rgba(3,10,34,0.45);
+      position: relative;
+      border: 1px solid rgba(0,0,0,0.04);
+    }
+
+    .download-header {
+      background: linear-gradient(135deg, var(--ocean-700), var(--ocean-500));
+      padding: 14px 14px 10px 14px;
+      border-top-left-radius: 12px;
+      border-top-right-radius: 12px;
+      color: var(--white);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .download-header .center-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-direction: column;
+      text-align: center;
+    }
+
+    .download-header .game-big {
+      font-size: 15px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+    }
+
+    .download-header .sub-title {
+      font-size: 10px;
+      opacity: 0.95;
+      font-weight: 600;
+    }
+
+    .download-close-btn {
+      position: absolute;
+      right: 14px;
+      top: 14px;
+      background: rgba(255,255,255,0.12);
+      border: none;
+      padding: 6px;
+      border-radius: 8px;
+      color: var(--white);
+      cursor: pointer;
+      font-weight: 700;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+      width: 26px;
+      height: 26px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+    }
+
+    .download-body {
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .download-options {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .download-option {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px;
+      border-radius: 8px;
+      background: var(--white);
+      border: 1px solid rgba(0,0,0,0.06);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .download-option:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+      border-color: var(--ocean-300);
+    }
+
+    .download-option .icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, var(--ocean-700), var(--ocean-500));
+      color: var(--white);
+      font-weight: 800;
+      font-size: 13px;
+      flex-shrink: 0;
+    }
+
+    .download-option .text {
+      flex: 1;
+    }
+
+    .download-option .title {
+      font-weight: 700;
+      color: var(--ocean-900);
+      font-size: 13px;
+    }
+
+    .download-option .description {
+      color: var(--gray-500);
+      font-size: 10px;
+      margin-top: 2px;
+    }
+
+    /* Bet Slip Modal Styles - FIXED Z-INDEX ISSUE */
+    .bet-slip-modal {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(3,10,34,0.75);
+      backdrop-filter: blur(6px);
+      z-index: 2000; /* Higher z-index to be above main modal */
+      padding: 14px;
+      box-sizing: border-box;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .bet-slip-modal.open {
+      display: flex;
+    }
+
+    .bet-slip-modal .modal {
+      max-width: 360px;
+      max-height: 85vh;
+      animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes slideUp {
+      from { transform: translateY(40px) scale(0.95); opacity: 0; }
+      to { transform: translateY(0) scale(1); opacity: 1; }
+    }
+
+    .bet-slip-header {
+      background: linear-gradient(135deg, var(--ocean-800), var(--ocean-600));
+      color: var(--white);
+      padding: 18px 18px 10px 18px;
+      border-top-left-radius: 12px;
+      border-top-right-radius: 12px;
+      position: relative;
+    }
+
+    .bet-slip-title {
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: 0.3px;
+      margin-bottom: 2px;
+    }
+
+    .bet-slip-subtitle {
+      font-size: 12px;
+      opacity: 0.9;
+      font-weight: 500;
+    }
+
+    .bet-slip-body {
+      padding: 18px;
+      overflow-y: auto;
+      max-height: calc(85vh - 140px);
+      font-size: 13px;
+    }
+
+    .bet-slip-info-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .bet-slip-info-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .bet-slip-label {
+      font-size: 9px;
+      color: var(--gray-600);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+
+    .bet-slip-value {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--ocean-800);
+    }
+
+    .bet-slip-divider {
+      margin: 14px 0;
+      border-top: 2px solid var(--ocean-200);
+    }
+
+    .words-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0;
+      font-size: 12px;
+    }
+
+    .words-table th {
+      background: var(--ocean-50);
+      color: var(--ocean-800);
+      font-size: 10px;
+      font-weight: 700;
+      text-align: left;
+      padding: 8px 10px;
+      border-bottom: 2px solid var(--ocean-200);
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+
+    .words-table td {
+      padding: 8px 10px;
+      border-bottom: 1px solid var(--gray-200);
+      font-size: 12px;
+    }
+
+    .words-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .words-table tr:hover {
+      background: var(--gray-50);
+    }
+
+    .word-column {
+      font-weight: 600;
+    }
+
+    /* Word color classes for bet slip */
+    .word-column.matched {
+      color: var(--success);
+    }
+
+    .word-column.not-matched {
+      color: var(--danger);
+    }
+
+    .word-column.void {
+      color: var(--warning);
+    }
+
+    .stake-column {
+      text-align: right;
+      font-weight: 700;
+      color: var(--gray-800);
+    }
+
+    .bet-summary {
+      background: var(--ocean-50);
+      border-radius: 8px;
+      padding: 14px;
+      margin-top: 18px;
+      border: 1px solid var(--ocean-200);
+    }
+
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--ocean-200);
+    }
+
+    .summary-row:last-child {
+      border-bottom: none;
+    }
+
+    .summary-label {
+      font-size: 12px;
+      color: var(--ocean-800);
+      font-weight: 600;
+    }
+
+    .summary-value {
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--ocean-800);
+    }
+
+    .summary-value.win {
+      color: var(--success);
+    }
+
+    .summary-value.loss {
+      color: var(--danger);
+    }
+
+    .summary-total {
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 2px solid var(--ocean-300);
+    }
+
+    .summary-total .summary-label {
+      font-size: 13px;
+      color: var(--ocean-900);
+    }
+
+    .summary-total .summary-value {
+      font-size: 16px;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      .action-buttons {
+        flex-direction: column;
+      }
+      
+      .btn {
+        width: 100%;
+      }
+      
+      .bet-slip-info-grid {
+        grid-template-columns: 1fr;
+        gap: 8px;
+      }
+      
+      .result-label {
+        width: 85px;
+        font-size: 12px;
+      }
+      
+      .result-value {
+        font-size: 12px;
+      }
+      
+      .modal {
+        max-width: 95%;
+      }
+    }
+
+    @media (min-width: 768px) {
+      .page {
+        max-width: 800px;
+        padding: 24px;
+      }
+
+      header {
+        flex-wrap: nowrap;
+      }
+
+      .controls {
+        width: auto;
+        margin-top: 0;
+        order: 0;
+      }
+
+      .search {
+        min-width: 200px;
+      }
+    }
+
+    @media (min-width: 1024px) {
+      .page {
+        max-width: 1100px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="page">
+  <header>
+    <div class="brand">
+      <div class="logo">
+        <img src="englabet.png" alt="EnglaBet Logo">
+      </div>
+      <div class="brand-text">
+        <h1>Game History</h1>
+        <div class="sub">Recent WordBet results & receipts</div>
+      </div>
+    </div>
+
+    <div class="controls">
+      <div class="search" aria-hidden="false">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" style="opacity:.6"><path d="M21 21l-4.35-4.35" stroke="#0b1220" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="11" cy="11" r="6" stroke="#0b1220" stroke-width="2"/></svg>
+        <input id="search" placeholder="Search by bet ID, game name..." />
+      </div>
+      <button class="filter-btn active" id="filterAll">All</button>
+      <button class="filter-btn" id="filterWin">Won</button>
+      <button class="filter-btn" id="filterLost">Lost</button>
+    </div>
+  </header>
+
+  <main>
+    <div class="list" id="list">
+      <div class="loading">
+        <div class="loading-spinner"></div>
+        <div>Loading game history...</div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Modal overlay - UPDATED WITH NEW LAYOUT -->
+<div class="overlay" id="overlay" aria-hidden="true">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-header">
+      <div class="modal-title">
+        <div class="modal-game" id="modalGame">MIDDAY</div>
+        <div class="modal-subtitle" id="modalSub">WordBet Result Analysis</div>
+      </div>
+      <button class="close-btn" id="closeBtn" title="Close">✕</button>
+    </div>
+
+    <div class="modal-body" id="modalBody">
+      <!-- NEW: Result Screen with your structure -->
+      <div class="result-header">
+        <div class="result-title">WORDBET RESULT</div>
+      </div>
+
+      <!-- Result Table -->
+      <div class="result-table">
+        <div class="result-table-row">
+          <div class="result-label">GAME</div>
+          <div class="result-value" id="resultGame">MIDDAY</div>
+        </div>
+        
+        <div class="result-table-row">
+          <div class="result-label">SCHEDULE</div>
+          <div class="result-value" id="resultSchedule">12PM - 2PM</div>
+        </div>
+        
+        <div class="result-table-row">
+          <div class="result-label">KEYLETTER</div>
+          <div class="result-value keyletter" id="resultKeyLetter">O</div>
+        </div>
+        
+        <div class="result-table-row">
+          <div class="result-label">KEYWORD</div>
+          <div class="result-value keyword" id="resultKeyword">OXYGEN</div>
+        </div>
+        
+        <!-- NEW: RIVAL ROW -->
+        <div class="result-table-row">
+          <div class="result-label">RIVAL</div>
+          <div class="result-value rival" id="resultRival">
+            <span class="rival-loading">
+              <span class="rival-spinner"></span>
+              Finding similar word...
+            </span>
+          </div>
+        </div>
+        
+        <div class="result-table-row">
+          <div class="result-label">WORDSPLIT</div>
+          <div class="result-value wordsplit" id="resultWordsplit">OLVUNXEGY</div>
+        </div>
+      </div>
+
+      <!-- Overview Section -->
+      <div class="overview-section">
+        <div class="overview-title">OVERVIEW</div>
+        
+        <div class="possible-words-list" id="possibleWordsList">
+          <!-- Possible words will be populated here - one word per line -->
+        </div>
+      </div>
+
+      <!-- Action Buttons - Hidden during print/PDF -->
+      <div class="action-buttons no-print">
+        <button class="btn secondary" id="printBtn">Print Results</button>
+        <button class="btn primary" id="downloadBtn">Download Receipt</button>
+        <button class="btn secondary" id="betSlipBtn">Bet Slip</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Download Options Modal -->
+<div class="download-modal" id="downloadModal">
+  <div class="download-container">
+    <div class="download-header">
+      <button class="download-close-btn" id="downloadCloseBtn" title="Close">✕</button>
+      <div class="center-title">
+        <div class="game-big">MIDDAY</div>
+        <div class="sub-title">Download Results</div>
+      </div>
+    </div>
+    <div class="download-body">
+      <div class="download-options">
+        <div class="download-option" id="downloadPdf">
+          <div class="icon">PDF</div>
+          <div class="text">
+            <div class="title">Download as PDF</div>
+            <div class="description">High quality document format</div>
+          </div>
+        </div>
+        <div class="download-option" id="downloadImage">
+          <div class="icon">IMG</div>
+          <div class="text">
+            <div class="title">Download as Image</div>
+            <div class="description">PNG image format</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Bet Slip Modal -->
+<div class="bet-slip-modal" id="betSlipModal">
+  <div class="modal">
+    <div class="bet-slip-header">
+      <button class="close-btn" id="closeBetSlipBtn" title="Close">✕</button>
+      <div class="bet-slip-title">BET SLIP</div>
+      <div class="bet-slip-subtitle" id="betSlipSubtitle">Game Details</div>
+    </div>
+    <div class="bet-slip-body" id="betSlipContent">
+      <!-- Bet slip content will be populated here -->
+    </div>
+  </div>
+</div>
+
+<script>
+  // Configuration
+  const SUPABASE_URL = 'https://sgtskerheqsfgiusdgaf.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNndHNrZXJoZXFzZmdpdXNkZ2FmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYwNDY4MDYsImV4cCI6MjA4MTYyMjgwNn0.rcvjGk8qpH6cV33gAr3LH44w5MNAjToq29-xiq2uTtM';
+  const BACKEND_API_URL = 'https://englabet-backend-5.onrender.com';
+  
+  // NEW: API Keys for external services
+  // Note: You need to get a free API key from https://www.wordsapi.com/
+  // Sign up for a free account and get your API key
+  const WORDS_API_KEY = 'YOUR_WORDS_API_KEY_HERE'; // Replace with your actual key
+  
+  // Create Supabase client
+  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  
+  // State
+  let currentUser = null;
+  let gameHistory = [];
+  let currentSelectedItem = null;
+  let isBetSlipOpen = false; // Track if bet slip is open
+  
+  // DOM Elements
+  const listEl = document.getElementById('list');
+  const overlay = document.getElementById('overlay');
+  const downloadModal = document.getElementById('downloadModal');
+  const betSlipModal = document.getElementById('betSlipModal');
+  const searchInput = document.getElementById('search');
+  const filterAll = document.getElementById('filterAll');
+  const filterWin = document.getElementById('filterWin');
+  const filterLost = document.getElementById('filterLost');
+  
+  // Modal elements
+  const modalGame = document.getElementById('modalGame');
+  const modalSub = document.getElementById('modalSub');
+  const modalBody = document.getElementById('modalBody');
+  const betSlipBtn = document.getElementById('betSlipBtn');
+  const betSlipContent = document.getElementById('betSlipContent');
+  const betSlipSubtitle = document.getElementById('betSlipSubtitle');
+  const closeBetSlipBtn = document.getElementById('closeBetSlipBtn');
+  
+  // Result screen elements - UPDATED WITH RIVAL
+  const resultGame = document.getElementById('resultGame');
+  const resultSchedule = document.getElementById('resultSchedule');
+  const resultKeyLetter = document.getElementById('resultKeyLetter');
+  const resultKeyword = document.getElementById('resultKeyword');
+  const resultRival = document.getElementById('resultRival'); // NEW: Rival element
+  const resultWordsplit = document.getElementById('resultWordsplit');
+  const possibleWordsList = document.getElementById('possibleWordsList');
+  
+  let currentFilter = 'all';
+  
+  // Format currency
+  function formatCurrency(amount) {
+    if (amount === null || amount === undefined) return '$0.00';
+    const num = parseFloat(amount);
+    return '$' + num.toLocaleString('en-US', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
+  }
+  
+  // Format date
+  function formatDate(dateString) {
+    if (!dateString) return '—';
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return '—';
+    
+    return date.toLocaleDateString('en-US', { 
+      year: 'numeric', 
+      month: 'short', 
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  }
+  
+  // Format time only
+  function formatTime(dateString) {
+    if (!dateString) return '—';
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return '—';
+    
+    return date.toLocaleTimeString('en-US', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    });
+  }
+  
+  // Format relative time
+  function formatRelativeTime(dateString) {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return '';
+    
+    const now = new Date();
+    const diffMs = now - date;
+    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+    
+    if (diffHours < 1) {
+      const diffMinutes = Math.floor(diffMs / (1000 * 60));
+      return `${diffMinutes}m ago`;
+    } else if (diffHours < 24) {
+      return `${diffHours}h ago`;
+    } else {
+      const diffDays = Math.floor(diffHours / 24);
+      return `${diffDays}d ago`;
+    }
+  }
+  
+  // NEW: Find rival word using Datamuse API (free, no key required)
+  async function findRivalWord(keyword) {
+    if (!keyword || keyword.length < 3) {
+      return 'No rival found';
+    }
+    
+    try {
+      // Use Datamuse API to find words that sound similar/spelled similarly
+      const response = await fetch(`https://api.datamuse.com/words?sl=${keyword.toLowerCase()}&max=5`);
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch rival word');
+      }
+      
+      const data = await response.json();
+      
+      // Find a word that's similar but not the same
+      if (data && data.length > 0) {
+        // Filter out the exact same word and very short words
+        const rival = data.find(item => 
+          item.word.toLowerCase() !== keyword.toLowerCase() && 
+          item.word.length >= 3 &&
+          item.word.length <= 8
+        );
+        
+        if (rival) {
+          return rival.word.toUpperCase();
+        }
+      }
+      
+      // If no good match found, try a different approach - find words with similar letters
+      const response2 = await fetch(`https://api.datamuse.com/words?sp=${keyword.toLowerCase()}&max=5`);
+      
+      if (response2.ok) {
+        const data2 = await response2.json();
+        if (data2 && data2.length > 0) {
+          const rival2 = data2.find(item => 
+            item.word.toLowerCase() !== keyword.toLowerCase() && 
+            item.word.length >= 3
+          );
+          
+          if (rival2) {
+            return rival2.word.toUpperCase();
+          }
+        }
+      }
+      
+      return 'No rival found';
+      
+    } catch (error) {
+      console.error('Error finding rival word:', error);
+      return 'Error finding rival';
+    }
+  }
+  
+  // NEW: Improved abbreviation detection using Words API
+  async function isAbbreviationAPI(word) {
+    const wordLower = word.toLowerCase();
+    
+    // First, check our local rules (same as before)
+    if (wordLower.length <= 2) {
+      return true;
+    }
+    
+    // All caps (except single letters)
+    if (word === word.toUpperCase() && word.length > 1) {
+      return true;
+    }
+    
+    // Contains numbers
+    if (/\d/.test(word)) {
+      return true;
+    }
+    
+    // Contains special characters
+    if (/[^a-zA-Z]/.test(word)) {
+      return true;
+    }
+    
+    // Common abbreviations list
+    const commonAbbreviations = [
+      'aka', 'asap', 'btw', 'diy', 'eta', 'faq', 'fyi', 'imo', 'iot', 'lol',
+      'n/a', 'na', 'ps', 'rsvp', 'tba', 'tbd', 'vip', 'www', 'xml', 'pdf',
+      'cpu', 'gpu', 'ram', 'rom', 'usb', 'hdd', 'ssd', 'url', 'uri', 'api',
+      'sql', 'css', 'html', 'js', 'ts', 'php', 'json', 'csv', 'xml', 'yaml',
+      'dr', 'mr', 'mrs', 'ms', 'jr', 'sr', 'st', 'ave', 'blvd', 'rd', 'ln'
+    ];
+    
+    if (commonAbbreviations.includes(wordLower)) {
+      return true;
+    }
+    
+    // Try to use Words API if we have a key
+    if (WORDS_API_KEY && WORDS_API_KEY !== 'YOUR_WORDS_API_KEY_HERE') {
+      try {
+        const response = await fetch(`https://wordsapiv1.p.rapidapi.com/words/${wordLower}`, {
+          headers: {
+            'X-RapidAPI-Key': WORDS_API_KEY,
+            'X-RapidAPI-Host': 'wordsapiv1.p.rapidapi.com'
+          }
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          
+          // Check if the word has an abbreviation definition
+          if (data.results) {
+            for (const result of data.results) {
+              if (result.definition && (
+                result.definition.toLowerCase().includes('abbreviation') ||
+                result.definition.toLowerCase().includes('abbr.') ||
+                result.definition.toLowerCase().includes('short for') ||
+                result.definition.toLowerCase().includes('acronym')
+              )) {
+                return true;
+              }
+            }
+          }
+        }
+      } catch (apiError) {
+        console.log('Words API error, using local detection only:', apiError);
+        // Continue with local detection if API fails
+      }
+    }
+    
+    return false;
+  }
+  
+  // UPDATED: Check if a word is likely an acronym/abbreviation (VOID) - using improved detection
+  async function isVoidWordAsync(word) {
+    return await isAbbreviationAPI(word);
+  }
+  
+  // Determine word status - ONLY FOR BET WORDS (for bet slip) - UPDATED with async
+  async function getWordStatusAsync(word, betWords, winningWords) {
+    const wordLower = word.toLowerCase();
+    const isInBetWords = betWords.includes(wordLower);
+    const isInWinningWords = winningWords.includes(wordLower);
+    
+    // Only apply colors to words that were bet on (for bet slip)
+    if (!isInBetWords) {
+      return ''; // No color - not bet on
+    }
+    
+    // If bet on, check if it's void using improved detection
+    const isVoid = await isAbbreviationAPI(word);
+    if (isVoid) {
+      return 'void'; // Yellow - void word (acronym/abbreviation)
+    } else if (isInWinningWords) {
+      return 'matched'; // Green - bet on AND in winning words
+    } else {
+      return 'not-matched'; // Red - bet on but NOT in winning words
+    }
+  }
+  
+  // Check authentication
+  async function checkAuth() {
+    try {
+      const { data: { session }, error } = await supabase.auth.getSession();
+      
+      if (error) {
+        console.error("Auth session error:", error);
+        return null;
+      }
+      
+      if (!session) {
+        showError("Please login to view your game history");
+        return null;
+      }
+      
+      currentUser = session.user;
+      return currentUser;
+      
+    } catch (error) {
+      console.error("Auth check error:", error);
+      return null;
+    }
+  }
+  
+  // Fetch game history from backend API
+  async function fetchGameHistory() {
+    if (!currentUser) {
+      throw new Error("No user logged in");
+    }
+    
+    try {
+      console.log("Fetching game history for user:", currentUser.id);
+      
+      // Try backend API first
+      const response = await fetch(`${BACKEND_API_URL}/api/user/${currentUser.id}/game-history`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: Failed to fetch game history`);
+      }
+      
+      const result = await response.json();
+      
+      if (result.success && result.history) {
+        console.log("Got game history from backend:", result.history.length, "items");
+        return result.history;
+      } else {
+        throw new Error(result.message || "Failed to fetch game history");
+      }
+      
+    } catch (error) {
+      console.error("Backend API fetch failed, trying Supabase direct:", error);
+      
+      // Fallback: Fetch directly from Supabase
+      return await fetchGameHistoryFromSupabase();
+    }
+  }
+  
+  // Fetch game history directly from Supabase
+  async function fetchGameHistoryFromSupabase() {
+    if (!currentUser) {
+      throw new Error("No user logged in");
+    }
+    
+    try {
+      const { data: userData, error: userError } = await supabase
+        .from('englabet_users')
+        .select('game_history')
+        .eq('auth_user_id', currentUser.id)
+        .single();
+      
+      if (userError) {
+        console.error("Error fetching user data:", userError);
+        throw new Error("Failed to fetch user data");
+      }
+      
+      if (!userData || !userData.game_history) {
+        return [];
+      }
+      
+      // Parse game_history JSON
+      let history = [];
+      try {
+        if (typeof userData.game_history === 'string') {
+          history = JSON.parse(userData.game_history);
+        } else {
+          history = userData.game_history;
+        }
+      } catch (parseError) {
+        console.error("Error parsing game history:", parseError);
+        return [];
+      }
+      
+      console.log("Got game history from Supabase:", history.length, "items");
+      return history;
+      
+    } catch (error) {
+      console.error("Supabase fetch error:", error);
+      throw error;
+    }
+  }
+  
+  // Create compact game receipt WITH BET SLIP BUTTON
+  function createGameRow(item) {
+    const receipt = document.createElement('div');
+    
+    // Determine status
+    let statusClass = 'lose';
+    let statusText = 'Lost';
+    if (item.status === 'WON' || item.winning_amount > 0) {
+      statusClass = 'win';
+      statusText = 'Won';
+    } else if (item.status === 'PROCESSING' || item.status === 'PENDING') {
+      statusClass = 'pending';
+      statusText = 'Pending';
+    }
+    
+    receipt.className = `receipt ${statusClass}`;
+    receipt.dataset.id = item.bet_id || item.id;
+    
+    const content = document.createElement('div');
+    content.className = 'receipt-content';
+    
+    // Left section
+    const left = document.createElement('div');
+    left.className = 'receipt-left';
+    
+    const icon = document.createElement('div');
+    icon.className = 'game-icon';
+    icon.textContent = (item.game_name || 'WM').substring(0, 2).toUpperCase();
+    
+    const info = document.createElement('div');
+    info.className = 'receipt-info';
+    
+    const title = document.createElement('div');
+    title.className = 'game-title';
+    title.textContent = `${item.game_name || 'Word Master'} #${item.bet_number || '?'}`;
+    
+    const meta = document.createElement('div');
+    meta.className = 'game-meta';
+    
+    const statusBadge = document.createElement('span');
+    statusBadge.className = `status-badge ${statusText.toLowerCase()}`;
+    statusBadge.textContent = statusText;
+    
+    const stats = document.createElement('div');
+    stats.className = 'game-stats';
+    const wordCount = Array.isArray(item.bet_words) ? item.bet_words.length : 0;
+    stats.textContent = `${wordCount} words • ${item.key_letter || '?'}`;
+    
+    // Bet Slip Button in receipt
+    const betSlipButton = document.createElement('button');
+    betSlipButton.className = 'bet-slip-btn';
+    betSlipButton.textContent = 'Bet Slip';
+    betSlipButton.addEventListener('click', (e) => {
+      e.stopPropagation(); // Prevent opening the main modal
+      showBetSlip(item); // Directly show bet slip
+    });
+    
+    meta.appendChild(statusBadge);
+    meta.appendChild(stats);
+    meta.appendChild(betSlipButton);
+    
+    info.appendChild(title);
+    info.appendChild(meta);
+    
+    left.appendChild(icon);
+    left.appendChild(info);
+    
+    // Right section
+    const right = document.createElement('div');
+    right.className = 'receipt-right';
+    
+    const amount = document.createElement('div');
+    amount.className = 'amount ' + (item.winning_amount > 0 ? 'plus' : 'minus');
+    amount.textContent = (item.winning_amount > 0 ? '+' : '') + formatCurrency(item.winning_amount || 0);
+    
+    const timeAgo = document.createElement('div');
+    timeAgo.className = 'time-ago';
+    timeAgo.textContent = formatRelativeTime(item.created_at);
+    
+    right.appendChild(amount);
+    right.appendChild(timeAgo);
+    
+    content.appendChild(left);
+    content.appendChild(right);
+    
+    receipt.appendChild(content);
+    
+    // Click event for main modal
+    receipt.addEventListener('click', () => openModal(item));
+    
+    return receipt;
+  }
+  
+  // Render game list
+  function renderList(items = gameHistory) {
+    listEl.innerHTML = '';
+    
+    if (items.length === 0) {
+      listEl.innerHTML = `
+        <div class="empty-state">
+          <svg width="64" height="64" viewBox="0 0 24 24" fill="none">
+            <path d="M19 5V19H5V5H19ZM19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3Z" fill="currentColor"/>
+            <path d="M14 17H7V15H14V17ZM17 13H7V11H17V13ZM17 9H7V7H17V9Z" fill="currentColor"/>
+          </svg>
+          <div>No game history found</div>
+          <div style="font-size: 12px; margin-top: 8px;">Your Word Master history will appear here after playing games</div>
+        </div>
+      `;
+      return;
+    }
+    
+    // Apply filter
+    let filteredItems = items;
+    if (currentFilter === 'win') {
+      filteredItems = items.filter(item => item.status === 'WON' || item.winning_amount > 0);
+    } else if (currentFilter === 'lost') {
+      filteredItems = items.filter(item => item.status === 'LOST' || item.winning_amount <= 0);
+    }
+    
+    // Apply search
+    const searchTerm = searchInput.value.toLowerCase();
+    if (searchTerm) {
+      filteredItems = filteredItems.filter(item => {
+        return (item.bet_id && item.bet_id.toLowerCase().includes(searchTerm)) ||
+               (item.game_name && item.game_name.toLowerCase().includes(searchTerm)) ||
+               (item.key_letter && item.key_letter.toLowerCase().includes(searchTerm)) ||
+               (Array.isArray(item.bet_words) && item.bet_words.some(word => 
+                 word.toLowerCase().includes(searchTerm)
+               ));
+      });
+    }
+    
+    // Sort by date (newest first)
+    filteredItems.sort((a, b) => {
+      const dateA = a.created_at ? new Date(a.created_at) : new Date(0);
+      const dateB = b.created_at ? new Date(b.created_at) : new Date(0);
+      return dateB - dateA;
+    });
+    
+    // Create receipts
+    filteredItems.forEach(item => {
+      listEl.appendChild(createGameRow(item));
+    });
+    
+    // Make focusable for keyboard navigation
+    makeFocusable();
+  }
+  
+  // Show loading state
+  function showLoading() {
+    listEl.innerHTML = `
+      <div class="loading">
+        <div class="loading-spinner"></div>
+        <div>Loading game history...</div>
+      </div>
+    `;
+  }
+  
+  // Show error state
+  function showError(message) {
+    listEl.innerHTML = `
+      <div class="empty-state">
+        <svg width="64" height="64" viewBox="0 0 24 24" fill="none">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" fill="currentColor"/>
+        </svg>
+        <div>Unable to load game history</div>
+        <div style="font-size: 12px; margin-top: 8px;">${message}</div>
+        <button class="filter-btn" onclick="initializeApp()" style="margin-top: 12px;">Try Again</button>
+      </div>
+    `;
+  }
+  
+  // Get schedule based on game name
+  function getScheduleForGame(gameName) {
+    const schedules = {
+      'DEWDROP': '08:00 am - 10:00 am',
+      'RELIEF': '10:00 am - 12:00 pm',
+      'MIDDAY': '12:00 pm - 02:00 pm',
+      'WORDFINDER': '02:00 pm - 04:00 pm',
+      'WEEKEND EXTRA': '04:00 pm - 06:00 pm',
+      'GO-GETTER': '06:00 pm - 08:00 pm',
+      'AMBITION': '08:00 pm - 10:00 pm',
+      'EXIT': '10:00 pm - 12:00 am',
+      'EVOLUTION': '10:00 am - 12:00 pm',
+      'GENIUS': '02:00 pm - 04:00 pm',
+      'FAST LANE': '04:00 pm - 06:00 pm',
+      'ANGLOPHONES': '06:00 pm - 08:00 pm',
+      'CHEETAH': '08:00 pm - 10:00 pm',
+      'PEAK': '10:00 am - 12:00 pm',
+      'SKYLINE': '02:00 pm - 04:00 pm',
+      'WORLD BEST': '04:00 pm - 06:00 pm',
+      'CHAMPION': '06:00 pm - 08:00 pm',
+      'CROSSING': '08:00 pm - 10:00 pm',
+      'BREAKFAST': '10:00 am - 12:00 pm',
+      'FUN BASE': '02:00 pm - 04:00 pm',
+      'CHALLENGE': '04:00 pm - 06:00 pm',
+      'SMART': '06:00 pm - 08:00 pm',
+      'BRIDGE': '08:00 pm - 10:00 pm',
+      'STARTER': '10:00 am - 12:00 pm',
+      'FREE LUNCH': '02:00 pm - 04:00 pm',
+      'ACCESS': '04:00 pm - 06:00 pm',
+      'REMINDER': '06:00 pm - 08:00 pm',
+      'WORD MASTER': '08:00 pm - 10:00 pm',
+      'INTRO': '10:00 am - 12:00 pm',
+      'TGIF': '02:00 pm - 04:00 pm',
+      'FLUKE': '04:00 pm - 06:00 pm',
+      'OXFORD 3000': '06:00 pm - 08:00 pm',
+      'MASTERCLASS': '08:00 pm - 10:00 pm',
+      'WORDBASE': '10:00 am - 12:00 pm',
+      'AWL': '04:00 pm - 06:00 pm',
+      'WEEKEND': '06:00 pm - 08:00 pm',
+      'STRUCTURE': '08:00 pm - 10:00 pm'
+    };
+    
+    return schedules[gameName] || '12:00 pm - 02:00 pm';
+  }
+  
+  // Populate result screen with data from backend - UPDATED WITH RIVAL FUNCTIONALITY
+  async function populateResultScreen(item) {
+    // Set main result info
+    resultGame.textContent = item.game_name || 'MIDDAY';
+    
+    // Format schedule time to match your example (12PM - 2PM)
+    const schedule = getScheduleForGame(item.game_name);
+    // Convert to uppercase PM/AM format
+    const formattedSchedule = schedule
+      .replace('am', 'AM')
+      .replace('pm', 'PM')
+      .replace(' - ', ' - ');
+    resultSchedule.textContent = formattedSchedule;
+    
+    resultKeyLetter.textContent = item.key_letter || 'O';
+    
+    // Get dictionary word (keyword)
+    const keyword = item.dictionary_word_used || 
+                   (item.letter_bag && item.letter_bag.dictionary_word) || 
+                   'OXYGEN';
+    resultKeyword.textContent = keyword.toUpperCase();
+    
+    // NEW: Find and display rival word asynchronously
+    const rivalLoadingHtml = `<span class="rival-loading"><span class="rival-spinner"></span>Finding similar word...</span>`;
+    resultRival.innerHTML = rivalLoadingHtml;
+    
+    // Start finding rival word in background
+    findRivalWord(keyword).then(rivalWord => {
+      resultRival.innerHTML = `<span class="rival-word">${rivalWord}</span>`;
+    }).catch(error => {
+      console.error('Error finding rival word:', error);
+      resultRival.innerHTML = `<span class="rival-word">Error finding rival</span>`;
+    });
+    
+    // Set wordsplit (Letter Bag)
+    const wordsplit = item.letter_bag_letters || 
+                     (item.letter_bag && item.letter_bag.letter_bag) || 
+                     'OLVUNXEGY';
+    resultWordsplit.textContent = wordsplit.toUpperCase();
+    
+    // Clear possible words list
+    possibleWordsList.innerHTML = '';
+    
+    // Get all possible words
+    const allPossibleWords = Array.isArray(item.all_possible_words) ? item.all_possible_words : [];
+    
+    // Create word rows - one word per line
+    allPossibleWords.forEach(word => {
+      const wordRow = document.createElement('div');
+      wordRow.className = 'word-row';
+      
+      // Add word text - ALL WORDS ARE BLACK IN OVERVIEW (no color classes)
+      const wordText = document.createElement('div');
+      wordText.className = 'word-text';
+      wordText.textContent = word.toUpperCase();
+      
+      // NO COLOR CLASSES ADDED - all words are black in overview
+      
+      wordRow.appendChild(wordText);
+      possibleWordsList.appendChild(wordRow);
+    });
+    
+    // If no possible words, show message
+    if (allPossibleWords.length === 0) {
+      possibleWordsList.innerHTML = `
+        <div style="text-align: center; color: var(--gray-500); font-style: italic; padding: 15px; font-size: 11px;">
+          No possible words recorded for this game
+        </div>
+      `;
+    }
+  }
+  
+  // Open modal with detailed results - UPDATED to be async
+  async function openModal(item) {
+    currentSelectedItem = item;
+    
+    // Set modal header
+    modalGame.textContent = item.game_name || 'MIDDAY';
+    modalSub.textContent = 'WordBet Result Analysis • ' + formatRelativeTime(item.created_at);
+    
+    // Populate result screen with async rival word fetching
+    await populateResultScreen(item);
+    
+    // Show modal immediately
+    overlay.classList.add('open');
+    overlay.setAttribute('aria-hidden', 'false');
+    document.getElementById('closeBtn').focus();
+  }
+  
+  // Show Bet Slip Modal - UPDATED with async abbreviation detection
+  async function showBetSlip(item) {
+    currentSelectedItem = item;
+    
+    // Set bet slip subtitle
+    betSlipSubtitle.textContent = `${item.game_name || 'MIDDAY'} • ${formatDate(item.created_at)}`;
+    
+    // Prepare bet slip content
+    const betWords = Array.isArray(item.bet_words) ? item.bet_words : [];
+    const stakePerWord = parseFloat(item.stake_per_word) || 0.2;
+    const totalStake = parseFloat(item.total_stake) || 0;
+    const winningAmount = parseFloat(item.winning_amount) || 0;
+    const winningWords = Array.isArray(item.winning_words) ? item.winning_words : [];
+    
+    // Generate table rows with colored words - USING ASYNC DETECTION
+    let tableRows = '';
+    
+    for (const word of betWords) {
+      const wordUpper = word.toUpperCase();
+      const wordLower = word.toLowerCase();
+      const isVoid = await isAbbreviationAPI(word);
+      const isWinning = winningWords.includes(wordLower);
+      
+      let statusClass = '';
+      if (isVoid) {
+        statusClass = 'void';
+      } else if (isWinning) {
+        statusClass = 'matched';
+      } else {
+        statusClass = 'not-matched';
+      }
+      
+      tableRows += `
+        <tr>
+          <td class="word-column ${statusClass}">${wordUpper}</td>
+          <td class="stake-column">${formatCurrency(stakePerWord)}</td>
+        </tr>
+      `;
+    }
+    
+    betSlipContent.innerHTML = `
+      <div class="bet-slip-info-grid">
+        <div class="bet-slip-info-item">
+          <div class="bet-slip-label">BET ID</div>
+          <div class="bet-slip-value">${item.bet_id || item.id}</div>
+        </div>
+        <div class="bet-slip-info-item">
+          <div class="bet-slip-label">DATE</div>
+          <div class="bet-slip-value">${formatDate(item.created_at)}</div>
+        </div>
+        <div class="bet-slip-info-item">
+          <div class="bet-slip-label">TIME</div>
+          <div class="bet-slip-value">${formatTime(item.created_at)}</div>
+        </div>
+        <div class="bet-slip-info-item">
+          <div class="bet-slip-label">GAME</div>
+          <div class="bet-slip-value">${item.game_name || 'MIDDAY'}</div>
+        </div>
+        <div class="bet-slip-info-item">
+          <div class="bet-slip-label">KEYLETTER</div>
+          <div class="bet-slip-value">${item.key_letter || 'O'}</div>
+        </div>
+        <!-- REMOVED STATUS ITEM -->
+      </div>
+      
+      <div class="bet-slip-divider"></div>
+      
+      <table class="words-table">
+        <thead>
+          <tr>
+            <th>WORD</th>
+            <th style="text-align: right;">STAKE</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${tableRows}
+          ${betWords.length === 0 ? `
+            <tr>
+              <td colspan="2" style="text-align: center; color: var(--gray-500); padding: 15px; font-style: italic; font-size: 11px;">
+                No bet words recorded
+              </td>
+            </tr>
+          ` : ''}
+        </tbody>
+      </table>
+      
+      <div class="bet-slip-divider"></div>
+      
+      <div class="bet-summary">
+        <div class="summary-row">
+          <div class="summary-label">TOTAL STAKE</div>
+          <div class="summary-value">${formatCurrency(totalStake)}</div>
+        </div>
+        <div class="summary-row">
+          <div class="summary-label">WINNING AMOUNT</div>
+          <div class="summary-value ${winningAmount > 0 ? 'win' : 'loss'}">${formatCurrency(winningAmount)}</div>
+        </div>
+        <div class="summary-row summary-total">
+          <div class="summary-label">NET RESULT</div>
+          <div class="summary-value ${winningAmount > totalStake ? 'win' : 'loss'}">
+            ${winningAmount > totalStake ? '+' : ''}${formatCurrency(winningAmount - totalStake)}
+          </div>
+        </div>
+      </div>
+    `;
+    
+    // Show bet slip modal instantly
+    isBetSlipOpen = true;
+    betSlipModal.classList.add('open');
+    betSlipModal.style.display = 'flex';
+  }
+  
+  // Close modal
+  function closeModal() {
+    overlay.classList.remove('open');
+    overlay.setAttribute('aria-hidden', 'true');
+    currentSelectedItem = null;
+  }
+  
+  // Close bet slip modal
+  function closeBetSlipModal() {
+    isBetSlipOpen = false;
+    betSlipModal.classList.remove('open');
+    setTimeout(() => {
+      betSlipModal.style.display = 'none';
+    }, 300); // Match the fadeOut animation duration
+    currentSelectedItem = null;
+  }
+  
+  function openDownloadModal() {
+    downloadModal.classList.add('open');
+  }
+  
+  function closeDownloadModal() {
+    downloadModal.classList.remove('open');
+  }
+  
+  // Download functionality - Hide action buttons during PDF/Image generation
+  function downloadAsPDF() {
+    if (!currentSelectedItem) return;
+    
+    const resultsElement = document.querySelector('.modal-body');
+    
+    // Hide action buttons temporarily
+    const actionButtons = document.querySelector('.action-buttons');
+    const originalDisplay = actionButtons.style.display;
+    actionButtons.style.display = 'none';
+    
+    const options = {
+      margin: 6,
+      filename: `wordbet-result-${currentSelectedItem.bet_id || currentSelectedItem.id}.pdf`,
+      image: { type: 'jpeg', quality: 0.95 },
+      html2canvas: { 
+        scale: 1.3,
+        useCORS: true,
+        logging: false,
+        backgroundColor: '#ffffff'
+      },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
+    
+    try {
+      html2pdf().set(options).from(resultsElement).save();
+    } finally {
+      // Restore action buttons
+      actionButtons.style.display = originalDisplay;
+      closeDownloadModal();
+    }
+  }
+  
+  function downloadAsImage() {
+    if (!currentSelectedItem) return;
+    
+    const resultsElement = document.querySelector('.modal-body');
+    
+    // Hide action buttons temporarily
+    const actionButtons = document.querySelector('.action-buttons');
+    const originalDisplay = actionButtons.style.display;
+    actionButtons.style.display = 'none';
+
+    html2canvas(resultsElement, {
+      scale: 1.3,
+      useCORS: true,
+      logging: false,
+      backgroundColor: '#ffffff'
+    }).then(canvas => {
+      // Restore action buttons
+      actionButtons.style.display = originalDisplay;
+      
+      const link = document.createElement('a');
+      link.download = `wordbet-result-${currentSelectedItem.bet_id || currentSelectedItem.id}.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+      closeDownloadModal();
+    }).catch(error => {
+      // Restore action buttons on error too
+      actionButtons.style.display = originalDisplay;
+      console.error('Error generating image:', error);
+      closeDownloadModal();
+    });
+  }
+  
+  // Print functionality
+  function setupPrint() {
+    const printBtn = document.getElementById('printBtn');
+    printBtn.addEventListener('click', () => {
+      // Clone the modal body for printing
+      const printContent = document.querySelector('.modal-body').cloneNode(true);
+      
+      // Remove action buttons from the clone
+      const actionButtons = printContent.querySelector('.action-buttons');
+      if (actionButtons) {
+        actionButtons.remove();
+      }
+      
+      // Create a new window for printing
+      const printWindow = window.open('', '_blank');
+      printWindow.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <title>WordBet Result - ${currentSelectedItem?.game_name || 'Game'}</title>
+          <style>
+            body {
+              font-family: "Inter", Arial, sans-serif;
+              padding: 12px;
+              color: #0b1220;
+              font-size: 11px;
+            }
+            .result-title {
+              font-size: 16px;
+              font-weight: 800;
+              text-align: center;
+              margin-bottom: 12px;
+              color: #003f63;
+              text-transform: uppercase;
+            }
+            .result-table-row {
+              display: flex;
+              margin-bottom: 6px;
+            }
+            .result-label {
+              font-size: 11px;
+              font-weight: 600;
+              color: #005a87;
+              width: 85px;
+              flex-shrink: 0;
+              text-transform: uppercase;
+            }
+            .result-value {
+              font-size: 11px;
+              font-weight: 700;
+              color: #111827;
+              flex: 1;
+              padding-left: 12px;
+            }
+            .overview-title {
+              font-size: 14px;
+              font-weight: 800;
+              margin: 16px 0 10px 0;
+              color: #003f63;
+              text-transform: uppercase;
+            }
+            .possible-words-list {
+              display: flex;
+              flex-direction: column;
+              gap: 5px;
+            }
+            .word-text {
+              font-size: 11px;
+              font-weight: 600;
+              text-transform: uppercase;
+              padding: 5px 0;
+              border-bottom: 1px solid #e5e7eb;
+              color: #111827; /* ALL WORDS ARE BLACK IN PRINT VIEW TOO */
+            }
+            @media print {
+              body {
+                padding: 4mm;
+              }
+            }
+          </style>
+        </head>
+        <body>
+          <div class="result-title">WORDBET RESULT</div>
+          ${printContent.innerHTML}
+        </body>
+        </html>
+      `);
+      printWindow.document.close();
+      
+      // Print after a short delay to ensure content loads
+      setTimeout(() => {
+        printWindow.focus();
+        printWindow.print();
+        setTimeout(() => {
+          printWindow.close();
+        }, 500);
+      }, 300);
+    });
+  }
+  
+  // Apply search and filter
+  function applyFilter() {
+    renderList();
+  }
+  
+  function setActiveFilter(button, mode) {
+    // Remove active class from all filter buttons
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.classList.remove('active');
+    });
+    
+    // Add active class to clicked button
+    button.classList.add('active');
+    currentFilter = mode;
+    applyFilter();
+  }
+  
+  // Make receipt elements focusable
+  function makeFocusable() {
+    document.querySelectorAll('.receipt').forEach(el => {
+      el.setAttribute('tabindex', '0');
+      el.setAttribute('role', 'button');
+      el.style.outline = 'none';
+    });
+  }
+  
+  // Initialize app
+  async function initializeApp() {
+    showLoading();
+    
+    try {
+      // Check authentication
+      const user = await checkAuth();
+      if (!user) {
+        showError("Please login to view your game history");
+        return;
+      }
+      
+      // Fetch game history
+      gameHistory = await fetchGameHistory();
+      
+      // Render list
+      renderList();
+      
+    } catch (error) {
+      console.error("Initialization error:", error);
+      showError("Failed to load data. Please check your connection.");
+    }
+  }
+  
+  // Set up event listeners
+  function setupEventListeners() {
+    // Search
+    searchInput.addEventListener('input', applyFilter);
+    
+    // Filters
+    filterAll.addEventListener('click', () => setActiveFilter(filterAll, 'all'));
+    filterWin.addEventListener('click', () => setActiveFilter(filterWin, 'win'));
+    filterLost.addEventListener('click', () => setActiveFilter(filterLost, 'lost'));
+    
+    // Modal close buttons
+    document.getElementById('closeBtn').addEventListener('click', closeModal);
+    overlay.addEventListener('click', (ev) => {
+      if (ev.target === overlay) closeModal();
+    });
+    
+    closeBetSlipBtn.addEventListener('click', closeBetSlipModal);
+    betSlipModal.addEventListener('click', (ev) => {
+      if (ev.target === betSlipModal) closeBetSlipModal();
+    });
+    
+    document.getElementById('downloadCloseBtn').addEventListener('click', closeDownloadModal);
+    downloadModal.addEventListener('click', (ev) => {
+      if (ev.target === downloadModal) closeDownloadModal();
+    });
+    
+    // Action buttons
+    document.getElementById('downloadBtn').addEventListener('click', openDownloadModal);
+    
+    // Setup print functionality
+    setupPrint();
+    
+    // Bet Slip Button in main modal - shows instantly
+    betSlipBtn.addEventListener('click', () => {
+      if (currentSelectedItem && !isBetSlipOpen) {
+        showBetSlip(currentSelectedItem);
+      }
+    });
+    
+    // Download options
+    document.getElementById('downloadPdf').addEventListener('click', downloadAsPDF);
+    document.getElementById('downloadImage').addEventListener('click', downloadAsImage);
+    
+    // Keyboard navigation
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && overlay.classList.contains('open')) closeModal();
+      if (e.key === 'Escape' && downloadModal.classList.contains('open')) closeDownloadModal();
+      if (e.key === 'Escape' && betSlipModal.classList.contains('open')) closeBetSlipModal();
+    });
+  }
+  
+  // Observe list changes to reassign focusable
+  const obs = new MutationObserver(() => makeFocusable());
+  obs.observe(listEl, { childList: true });
+  
+  // Start the app when DOM is loaded
+  document.addEventListener('DOMContentLoaded', () => {
+    setupEventListeners();
+    initializeApp();
+    
+    // Make functions available globally
+    window.initializeApp = initializeApp;
+    window.showBetSlip = showBetSlip;
+  });
+</script>
+</body>
+</html>

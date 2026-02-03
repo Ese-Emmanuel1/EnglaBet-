@@ -1,0 +1,1165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EnglaBet - Sign Up</title>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap">
+    <!-- Supabase Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.7/dist/umd/supabase.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Montserrat', sans-serif;
+        }
+        :root {
+            --primary: #0a2e5a;
+            --secondary: #1a4789;
+            --accent: #00a8d8;
+            --accent-gradient: linear-gradient(to right, #00a8d8, #00d8e8);
+            --pink: #ff4b8f;
+            --text-light: #ffffff;
+            --text-gray: #a0c1ed;
+            --card-bg: #1a3e75;
+            --card-dark: #0f2b50;
+            --input-bg: #0f2b50;
+            --calendar-bg: #0f2b50;
+            --calendar-hover: #1a4789;
+            --success: #2ecc71;
+            --error: #ff3366;
+        }
+        body {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: var(--text-light);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .signup-container {
+            width: 100%;
+            max-width: 520px;
+            background: var(--card-bg);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            animation: fadeIn 0.5s ease;
+        }
+        .signup-header {
+            background: linear-gradient(to right, #0d3b78, var(--primary));
+            padding: 25px 20px;
+            text-align: center;
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 15px;
+        }
+        .logo-img {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 168, 216, 0.4);
+            background: white;
+            padding: 0;
+        }
+        .logo-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            border-radius: 10px;
+        }
+        .logo-text {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            font-weight: 800;
+            line-height: 1.1;
+        }
+        .logo-main {
+            font-size: 28px;
+            font-weight: 900;
+            letter-spacing: -0.5px;
+            display: flex;
+            align-items: center;
+        }
+        .logo-engla {
+            color: #00a8d8;
+            font-weight: 900;
+        }
+        .logo-bet {
+            color: var(--pink);
+            font-weight: 900;
+        }
+        .logo-reg {
+            font-size: 10px;
+            color: white;
+            vertical-align: super;
+            margin-left: 2px;
+            font-weight: 500;
+        }
+        .logo-tagline {
+            font-size: 10px;
+            color: var(--text-gray);
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+        .signup-header h1 {
+            font-size: 24px;
+            margin: 10px 0 5px;
+            font-weight: 600;
+        }
+        .signup-header p {
+            color: var(--text-gray);
+            font-size: 14px;
+        }
+        .signup-body {
+            padding: 25px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-gray);
+        }
+        .input-with-icon {
+            position: relative;
+        }
+        .input-icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--accent);
+        }
+        .form-control {
+            width: 100%;
+            padding: 15px 15px 15px 45px;
+            background: var(--input-bg);
+            border: 1px solid #1e4a86;
+            border-radius: 10px;
+            color: var(--text-light);
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        .form-control:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px rgba(0, 168, 216, 0.2);
+        }
+        .password-toggle {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-gray);
+            cursor: pointer;
+        }
+        .row {
+            display: flex;
+            gap: 15px;
+        }
+        .row .form-group {
+            flex: 1;
+        }
+        .age-warning {
+            background: var(--error);
+            color: white;
+            padding: 12px;
+            border-radius: 10px;
+            font-size: 14px;
+            text-align: center;
+            margin-bottom: 20px;
+            font-weight: bold;
+            animation: pulse 2s infinite;
+        }
+        
+        /* Date of Birth Field */
+        .date-of-birth-container {
+            display: flex;
+            gap: 10px;
+        }
+        .date-select {
+            flex: 1;
+            padding: 15px;
+            background: var(--input-bg);
+            border: 1px solid #1e4a86;
+            border-radius: 10px;
+            color: var(--text-light);
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .date-select:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px rgba(0, 168, 216, 0.2);
+        }
+        .age-display {
+            margin-top: 10px;
+            font-size: 14px;
+            color: var(--text-gray);
+            text-align: center;
+        }
+        .calculated-age {
+            font-weight: 600;
+            color: var(--accent);
+        }
+        .age-valid {
+            color: var(--success);
+        }
+        .age-invalid {
+            color: var(--error);
+        }
+        
+        .checkbox-group {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .checkbox-group input {
+            accent-color: var(--accent);
+            margin-top: 6px;
+        }
+        .checkbox-group label {
+            font-size: 14px;
+            color: var(--text-gray);
+        }
+        .checkbox-group a {
+            color: var(--accent);
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .btn-signup {
+            width: 100%;
+            padding: 16px;
+            background: var(--accent-gradient);
+            border: none;
+            border-radius: 10px;
+            color: var(--primary);
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0, 168, 216, 0.4);
+        }
+        .btn-signup:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0, 168, 216, 0.5);
+        }
+        .btn-signup:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .login-link {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 14px;
+            color: var(--text-gray);
+        }
+        .login-link a {
+            color: var(--accent);
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .login-link a:hover {
+            text-decoration: underline;
+        }
+        .signup-footer {
+            background: var(--card-dark);
+            padding: 15px;
+            text-align: center;
+            font-size: 12px;
+            color: var(--text-gray);
+        }
+        .signup-footer a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+        .error-message {
+            font-size: 12px;
+            color: var(--error);
+            margin-top: 5px;
+            display: none;
+        }
+        .form-control.error {
+            border-color: var(--error);
+        }
+        select.error {
+            border-color: var(--error);
+        }
+        
+        /* Profile Picture Upload */
+        .profile-upload {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .upload-btn {
+            background: var(--secondary);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+        .upload-btn:hover {
+            background: #163a6a;
+        }
+        .upload-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .image-preview {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            margin: 15px auto;
+            background-color: #122540;
+            border: 2px dashed var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        .image-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .image-preview i {
+            color: #555;
+            font-size: 2rem;
+        }
+        
+        /* Success Screen */
+        .success-screen {
+            text-align: center;
+            padding: 40px 20px;
+            display: none;
+        }
+        .success-icon {
+            font-size: 50px;
+            color: var(--accent);
+            margin-bottom: 15px;
+        }
+        .success-screen h2 {
+            font-size: 22px;
+            margin-bottom: 10px;
+        }
+        .success-screen p {
+            color: var(--text-gray);
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+        .user-id-container {
+            background: var(--input-bg);
+            padding: 12px;
+            border-radius: 8px;
+            margin: 15px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .user-id {
+            font-family: monospace;
+            font-size: 14px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .copy-btn {
+            background: var(--secondary);
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s ease;
+        }
+        .copy-btn:hover {
+            background: #163a6a;
+        }
+        .back-btn {
+            background: var(--secondary);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .back-btn:hover {
+            background: #163a6a;
+        }
+        
+        /* Loading Spinner */
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--text-light);
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 10px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.03); }
+            100% { transform: scale(1); }
+        }
+        
+        /* Responsive */
+        @media (max-width: 500px) {
+            .row {
+                flex-direction: column;
+                gap: 15px;
+            }
+            .signup-body {
+                padding: 20px 15px;
+            }
+            .logo-main {
+                font-size: 24px;
+            }
+            .date-of-birth-container {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="signup-container">
+        <div class="signup-header">
+            <div class="logo">
+                <div class="logo-img">
+                    <img src="englabet.png" alt="EnglaBet Logo">
+                </div>
+                <div class="logo-text">
+                    <div class="logo-main">
+                        <span class="logo-engla">Engla</span><span class="logo-bet">Bet</span><sup class="logo-reg">®</sup>
+                    </div>
+                    <div class="logo-tagline">Learn While You Earn</div>
+                </div>
+            </div>
+            <h1>Create Your Account</h1>
+            <p>Join the world of word gaming today</p>
+        </div>
+
+        <!-- Sign Up Form -->
+        <div class="signup-body" id="signupFormContainer">
+            <div class="age-warning">
+                <i class="fas fa-exclamation-triangle"></i> You must be 18 years or older to register
+            </div>
+
+            <form id="signupForm">
+                <div class="row">
+                    <div class="form-group">
+                        <label for="firstName">First Name</label>
+                        <div class="input-with-icon">
+                            <i class="fas fa-user input-icon"></i>
+                            <input type="text" id="firstName" class="form-control" placeholder="Enter your first name">
+                        </div>
+                        <div class="error-message" id="firstNameError">First name is required.</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="lastName">Last Name</label>
+                        <div class="input-with-icon">
+                            <i class="fas fa-user input-icon"></i>
+                            <input type="text" id="lastName" class="form-control" placeholder="Enter your last name">
+                        </div>
+                        <div class="error-message" id="lastNameError">Last name is required.</div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <div class="input-with-icon">
+                        <i class="fas fa-envelope input-icon"></i>
+                        <input type="email" id="email" class="form-control" placeholder="Enter your email">
+                    </div>
+                    <div class="error-message" id="emailError">Please enter a valid email.</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="phone">Phone Number</label>
+                    <div class="input-with-icon">
+                        <i class="fas fa-phone input-icon"></i>
+                        <input type="tel" id="phone" class="form-control" placeholder="Enter your phone number">
+                    </div>
+                    <div class="error-message" id="phoneError">Please enter a valid phone number.</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <div class="input-with-icon">
+                        <i class="fas fa-lock input-icon"></i>
+                        <input type="password" id="password" class="form-control" placeholder="Create a password">
+                        <i class="fas fa-eye password-toggle" id="togglePassword"></i>
+                    </div>
+                    <div class="error-message" id="passwordError">Password must be at least 6 characters.</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="confirmPassword">Confirm Password</label>
+                    <div class="input-with-icon">
+                        <i class="fas fa-lock input-icon"></i>
+                        <input type="password" id="confirmPassword" class="form-control" placeholder="Confirm your password">
+                        <i class="fas fa-eye password-toggle" id="toggleConfirmPassword"></i>
+                    </div>
+                    <div class="error-message" id="confirmError">Passwords do not match.</div>
+                </div>
+
+                <!-- Date of Birth -->
+                <div class="form-group">
+                    <label for="dateOfBirth">Date of Birth</label>
+                    <div class="input-with-icon">
+                        <i class="fas fa-calendar input-icon"></i>
+                        <input type="date" id="dateOfBirth" class="form-control" max="">
+                    </div>
+                    <div class="age-display">
+                        Age: <span id="calculatedAge" class="calculated-age">--</span> years old
+                    </div>
+                    <div class="error-message" id="dobError">You must be 18 years or older to register.</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="gender">Gender</label>
+                    <select id="gender" class="form-control">
+                        <option value="">Select gender</option>
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                        <option value="other">Other</option>
+                        <option value="prefer-not-to-say">Prefer not to say</option>
+                    </select>
+                    <div class="error-message" id="genderError">Please select your gender.</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="securityQuestion">Security Question</label>
+                    <select id="securityQuestion" class="form-control">
+                        <option value="">Choose a security question</option>
+                        <option value="pet">What was your first pet's name?</option>
+                        <option value="school">What was the name of your first school?</option>
+                        <option value="city">What city were you born in?</option>
+                        <option value="mother">What is your mother's maiden name?</option>
+                        <option value="car">What was your first car?</option>
+                    </select>
+                    <div class="error-message" id="securityQuestionError">Please select a security question.</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="securityAnswer">Security Answer</label>
+                    <div class="input-with-icon">
+                        <i class="fas fa-key input-icon"></i>
+                        <input type="text" id="securityAnswer" class="form-control" placeholder="Enter your answer">
+                    </div>
+                    <div class="error-message" id="securityAnswerError">Answer is required.</div>
+                </div>
+
+                <!-- Profile Picture Upload -->
+                <div class="profile-upload">
+                    <label>Profile Picture (Optional)</label>
+                    <button type="button" id="uploadProfileBtn" class="upload-btn">
+                        <i class="fas fa-upload"></i> Upload Photo
+                    </button>
+                    <div class="image-preview" id="profilePreview">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <input type="hidden" id="profilePhotoUrl">
+                </div>
+
+                <div class="checkbox-group">
+                    <input type="checkbox" id="terms">
+                    <label>
+                        I agree to the <a href="#" target="_blank">Terms of Service</a> and <a href="#" target="_blank">Privacy Policy</a>. I confirm I am 18 years or older.
+                    </label>
+                </div>
+                <div class="error-message" id="termsError">You must accept the terms and confirm you are 18+.</div>
+
+                <button type="submit" class="btn-signup">
+                    <span id="btnText">Create Account</span>
+                </button>
+            </form>
+
+            <div class="login-link">
+                Already have an account? <a href="login.html">Sign In</a>
+            </div>
+        </div>
+
+        <!-- Success Screen -->
+        <div class="signup-body success-screen" id="successScreen">
+            <i class="fas fa-check-circle success-icon"></i>
+            <h2>Account Created!</h2>
+            <p>We've sent a verification email to <strong id="successEmail"></strong>.<br>Please click the link in the email to verify your account.</p>
+            
+            <p>Your User ID:</p>
+            <div class="user-id-container">
+                <span class="user-id" id="userIdDisplay"></span>
+                <button type="button" class="copy-btn" id="copyUserIdBtn">
+                    <i class="fas fa-copy"></i> Copy
+                </button>
+            </div>
+            
+            <button type="button" class="back-btn" id="backToLogin">Back to Login</button>
+        </div>
+
+        <div class="signup-footer">
+            <p>© 2026 EnglaBet. All rights reserved.</p>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Supabase
+        const SUPABASE_URL = 'https://sgtskerheqsfgiusdgaf.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_6Q1t_QlqdMv0o1E9fETjKg_D5XpBB2T';
+        
+        // Create Supabase client
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        
+        console.log('Supabase initialized:', supabase ? 'Yes' : 'No');
+        
+        // Check if supabase is available
+        function checkSupabase() {
+            if (!supabase || !supabase.auth) {
+                console.error('Supabase not properly initialized');
+                return false;
+            }
+            return true;
+        }
+
+        // Generate a professional user ID
+        function generateUserId(firstName, lastName) {
+            const namePart = (firstName.substring(0, 3) + lastName.substring(0, 3)).toUpperCase();
+            const timePart = Date.now().toString().slice(-6);
+            const randomPart = Math.floor(Math.random() * 900 + 100).toString();
+            return `EB${namePart}${timePart}${randomPart}`;
+        }
+
+        // Get user's country based on IP
+        async function getUserCountry() {
+            try {
+                const response = await fetch('https://ipapi.co/json/');
+                const data = await response.json();
+                return data.country_name || 'Unknown';
+            } catch (error) {
+                console.error("Error detecting country:", error);
+                return 'Unknown';
+            }
+        }
+
+        // Toggle password visibility
+        document.getElementById('togglePassword').addEventListener('click', function() {
+            const passwordInput = document.getElementById('password');
+            const type = passwordInput.type === 'password' ? 'text' : 'password';
+            passwordInput.type = type;
+            this.classList.toggle('fa-eye');
+            this.classList.toggle('fa-eye-slash');
+        });
+
+        document.getElementById('toggleConfirmPassword').addEventListener('click', function() {
+            const confirmInput = document.getElementById('confirmPassword');
+            const type = confirmInput.type === 'password' ? 'text' : 'password';
+            confirmInput.type = type;
+            this.classList.toggle('fa-eye');
+            this.classList.toggle('fa-eye-slash');
+        });
+
+        // Set max date for date picker (today - 18 years)
+        document.addEventListener('DOMContentLoaded', function() {
+            const dateOfBirthInput = document.getElementById('dateOfBirth');
+            const today = new Date();
+            const maxDate = new Date();
+            maxDate.setFullYear(today.getFullYear() - 18);
+            
+            const maxDateString = maxDate.toISOString().split('T')[0];
+            dateOfBirthInput.max = maxDateString;
+            
+            dateOfBirthInput.addEventListener('change', function() {
+                calculateAgeFromDate(this.value);
+            });
+        });
+
+        // Calculate age from date
+        function calculateAgeFromDate(dateString) {
+            if (!dateString) {
+                document.getElementById('calculatedAge').textContent = '--';
+                document.getElementById('calculatedAge').className = 'calculated-age';
+                return;
+            }
+            
+            const birthDate = new Date(dateString);
+            const today = new Date();
+            let age = today.getFullYear() - birthDate.getFullYear();
+            const monthDiff = today.getMonth() - birthDate.getMonth();
+            
+            if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+                age--;
+            }
+            
+            const ageElement = document.getElementById('calculatedAge');
+            ageElement.textContent = age;
+            
+            if (age < 18) {
+                ageElement.className = 'calculated-age age-invalid';
+            } else {
+                ageElement.className = 'calculated-age age-valid';
+            }
+            
+            return age;
+        }
+
+        // Profile Picture Upload Handler
+        document.getElementById('uploadProfileBtn').addEventListener('click', async function() {
+            const fileInput = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.accept = 'image/*';
+            
+            fileInput.onchange = async (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                
+                if (file.size > 5 * 1024 * 1024) {
+                    alert('File size must be less than 5MB');
+                    return;
+                }
+                
+                if (!file.type.match('image.*')) {
+                    alert('Please select an image file (JPEG, PNG, etc.)');
+                    return;
+                }
+                
+                const btn = document.getElementById('uploadProfileBtn');
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '<span class="spinner"></span>Uploading...';
+                btn.disabled = true;
+                
+                try {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const preview = document.getElementById('profilePreview');
+                        preview.innerHTML = `<img src="${e.target.result}" alt="Profile">`;
+                        document.getElementById('profilePhotoUrl').value = e.target.result;
+                        
+                        btn.innerHTML = originalText;
+                        btn.disabled = false;
+                    };
+                    reader.readAsDataURL(file);
+                    
+                } catch (error) {
+                    console.error('Upload error:', error);
+                    alert('Failed to process image. Please try again.');
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                }
+            };
+            
+            fileInput.click();
+        });
+
+        // Helper to show error
+        function showError(inputId, errorId, message) {
+            const input = document.getElementById(inputId);
+            const error = document.getElementById(errorId);
+            
+            if (input) input.classList.add('error');
+            if (error) {
+                error.textContent = message;
+                error.style.display = 'block';
+            }
+        }
+
+        // Helper to hide errors
+        function hideErrors() {
+            document.querySelectorAll('.error-message').forEach(el => {
+                el.style.display = 'none';
+            });
+            document.querySelectorAll('.error').forEach(el => {
+                el.classList.remove('error');
+            });
+        }
+
+        // Helper to show loading state
+        function setLoading(loading) {
+            const btn = document.querySelector('.btn-signup');
+            const btnText = document.getElementById('btnText');
+            
+            if (loading) {
+                btn.disabled = true;
+                btnText.innerHTML = '<span class="spinner"></span>Creating Account...';
+            } else {
+                btn.disabled = false;
+                btnText.textContent = 'Create Account';
+            }
+        }
+
+        // Check if email exists in database
+        async function checkEmailExists(email) {
+            try {
+                const { data, error } = await supabase
+                    .from('englabet_users')
+                    .select('email')
+                    .eq('email', email)
+                    .single();
+                    
+                if (error && error.code === 'PGRST116') {
+                    return false;
+                }
+                
+                return !!data;
+            } catch (error) {
+                console.error('Error checking email:', error);
+                return false;
+            }
+        }
+
+        // Function to save user to custom table (NO PASSWORD STORAGE)
+        async function saveUserToTable(userData) {
+            try {
+                console.log('Saving user to custom table:', userData);
+                
+                const { data, error } = await supabase
+                    .from('englabet_users')
+                    .insert([userData])
+                    .select();
+                
+                if (error) {
+                    console.error('Error saving to custom table:', error);
+                    throw error;
+                }
+                
+                console.log('User saved to custom table:', data);
+                return data;
+            } catch (error) {
+                console.error('Failed to save user to custom table:', error);
+                throw error;
+            }
+        }
+
+        // Initialize user game balances
+        async function initializeGameBalances(userId, authUserId) {
+            try {
+                console.log('Initializing game balances for:', userId);
+                
+                // Check if game_balances table exists
+                const { error: tableCheckError } = await supabase
+                    .from('game_balances')
+                    .select('*')
+                    .limit(1);
+                
+                if (tableCheckError) {
+                    console.log('Game balances table might not exist, skipping...');
+                    return;
+                }
+                
+                const gameEntries = [
+                    {
+                        user_id: userId,
+                        auth_user_id: authUserId,
+                        game_type: 'WordBet',
+                        balance: 0.00,
+                        total_won: 0.00,
+                        total_bet: 0.00,
+                        games_played: 0,
+                        games_won: 0
+                    },
+                    {
+                        user_id: userId,
+                        auth_user_id: authUserId,
+                        game_type: 'VirtualSpelling',
+                        balance: 0.00,
+                        total_won: 0.00,
+                        total_bet: 0.00,
+                        games_played: 0,
+                        games_won: 0
+                    },
+                    {
+                        user_id: userId,
+                        auth_user_id: authUserId,
+                        game_type: 'SyntaxBet',
+                        balance: 0.00,
+                        total_won: 0.00,
+                        total_bet: 0.00,
+                        games_played: 0,
+                        games_won: 0
+                    }
+                ];
+                
+                const { data, error } = await supabase
+                    .from('game_balances')
+                    .insert(gameEntries);
+                
+                if (error) {
+                    console.error('Error initializing game balances:', error);
+                } else {
+                    console.log('Game balances initialized:', data);
+                }
+                
+            } catch (error) {
+                console.error('Failed to initialize game balances:', error);
+            }
+        }
+
+        // Main Form Submission Handler
+        document.getElementById('signupForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            
+            console.log('Form submission started');
+            
+            if (!checkSupabase()) {
+                alert('Supabase is not initialized. Please refresh the page.');
+                return;
+            }
+
+            hideErrors();
+            let isValid = true;
+
+            // Validation
+            const firstName = document.getElementById('firstName').value.trim();
+            if (!firstName) {
+                showError('firstName', 'firstNameError', 'First name is required.');
+                isValid = false;
+            }
+
+            const lastName = document.getElementById('lastName').value.trim();
+            if (!lastName) {
+                showError('lastName', 'lastNameError', 'Last name is required.');
+                isValid = false;
+            }
+
+            const email = document.getElementById('email').value.trim();
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                showError('email', 'emailError', 'Please enter a valid email.');
+                isValid = false;
+            }
+
+            const phone = document.getElementById('phone').value.trim();
+            const phoneDigits = phone.replace(/\D/g, '');
+            if (phoneDigits.length < 10) {
+                showError('phone', 'phoneError', 'Please enter a valid phone number (at least 10 digits).');
+                isValid = false;
+            }
+
+            const password = document.getElementById('password').value;
+            if (password.length < 6) {
+                showError('password', 'passwordError', 'Password must be at least 6 characters.');
+                isValid = false;
+            }
+
+            const confirm = document.getElementById('confirmPassword').value;
+            if (password !== confirm) {
+                showError('confirmPassword', 'confirmError', 'Passwords do not match.');
+                isValid = false;
+            }
+
+            const dateOfBirth = document.getElementById('dateOfBirth').value;
+            if (!dateOfBirth) {
+                document.getElementById('dobError').textContent = 'Please select your date of birth.';
+                document.getElementById('dobError').style.display = 'block';
+                document.getElementById('dateOfBirth').classList.add('error');
+                isValid = false;
+            } else {
+                const age = calculateAgeFromDate(dateOfBirth);
+                if (age < 18) {
+                    document.getElementById('dobError').textContent = 'You must be 18 years or older to register.';
+                    document.getElementById('dobError').style.display = 'block';
+                    document.getElementById('dateOfBirth').classList.add('error');
+                    isValid = false;
+                }
+            }
+
+            const gender = document.getElementById('gender').value;
+            if (!gender) {
+                showError('gender', 'genderError', 'Please select your gender.');
+                isValid = false;
+            }
+
+            const securityQuestion = document.getElementById('securityQuestion').value;
+            if (!securityQuestion) {
+                showError('securityQuestion', 'securityQuestionError', 'Please select a security question.');
+                isValid = false;
+            }
+
+            const securityAnswer = document.getElementById('securityAnswer').value.trim();
+            if (!securityAnswer) {
+                showError('securityAnswer', 'securityAnswerError', 'Answer is required.');
+                isValid = false;
+            }
+
+            const terms = document.getElementById('terms').checked;
+            if (!terms) {
+                document.getElementById('termsError').style.display = 'block';
+                isValid = false;
+            }
+
+            if (!isValid) {
+                console.log('Form validation failed');
+                return;
+            }
+
+            setLoading(true);
+            
+            try {
+                // Check email existence
+                const emailExists = await checkEmailExists(email);
+                if (emailExists) {
+                    alert('This email is already registered. Please use a different email or try logging in.');
+                    setLoading(false);
+                    return;
+                }
+
+                // Get additional data
+                const displayName = `${firstName} ${lastName}`;
+                const profilePhotoUrl = document.getElementById('profilePhotoUrl').value || '';
+                const userId = generateUserId(firstName, lastName);
+                const country = await getUserCountry();
+
+                console.log('Creating auth user...');
+
+                // Step 1: Create auth user (password is stored securely in Supabase Auth only)
+                const { data: authData, error: authError } = await supabase.auth.signUp({
+                    email: email,
+                    password: password,
+                    options: {
+                        data: {
+                            first_name: firstName,
+                            last_name: lastName,
+                            display_name: displayName,
+                            user_id: userId,
+                            phone: phone,
+                            date_of_birth: dateOfBirth,
+                            gender: gender,
+                            country: country
+                        },
+                        emailRedirectTo: `${window.location.origin}/auth-callback.html`
+                    }
+                });
+
+                if (authError) {
+                    console.error('Auth error:', authError);
+                    
+                    if (authError.message.includes('already registered')) {
+                        alert('This email is already registered. Please try logging in.');
+                        setLoading(false);
+                        return;
+                    }
+                    
+                    throw authError;
+                }
+
+                if (!authData.user) {
+                    throw new Error('User creation failed');
+                }
+
+                console.log('Auth user created:', authData.user.id);
+
+                // Step 2: Prepare user data for custom table (NO PASSWORD STORAGE)
+                const userData = {
+                    user_id: userId,
+                    auth_user_id: authData.user.id,
+                    first_name: firstName,
+                    last_name: lastName,
+                    email: email,
+                    phone: phone,
+                    date_of_birth: dateOfBirth,
+                    gender: gender,
+                    security_question: securityQuestion,
+                    security_answer: securityAnswer,
+                    profile_photo_url: profilePhotoUrl,
+                    country: country,
+                    email_verified: false,
+                    account_status: 'pending_verification',
+                    balance: 0.00,
+                    total_deposits: 0.00,
+                    total_withdrawals: 0.00,
+                    games_played: 0,
+                    games_won: 0,
+                    win_rate: 0.00,
+                    wordbet: 0.00,  // Changed from wordbet_balance
+                    virtual_spelling: 0.00,  // Changed from virtual_spelling_balance
+                    syntaxbet: 0.00,  // Changed from syntaxbet_balance
+                    total_transactions: 0,
+                    created_at: new Date().toISOString(),
+                    updated_at: new Date().toISOString()
+                };
+
+                // Step 3: Save to custom table
+                await saveUserToTable(userData);
+
+                // Step 4: Initialize game balances (optional)
+                await initializeGameBalances(userId, authData.user.id);
+
+                // Show success screen
+                document.getElementById('successEmail').textContent = email;
+                document.getElementById('userIdDisplay').textContent = userId;
+                document.getElementById('signupFormContainer').style.display = 'none';
+                document.getElementById('successScreen').style.display = 'block';
+
+                console.log('Account created successfully!');
+
+            } catch (error) {
+                console.error("Signup error:", error);
+                alert("Error: " + (error.message || "Failed to create account. Please try again."));
+                setLoading(false);
+            }
+        });
+
+        // Copy User ID to clipboard
+        document.getElementById('copyUserIdBtn').addEventListener('click', () => {
+            const userId = document.getElementById('userIdDisplay').textContent;
+            navigator.clipboard.writeText(userId).then(() => {
+                const btn = document.getElementById('copyUserIdBtn');
+                const originalHtml = btn.innerHTML;
+                btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                setTimeout(() => {
+                    btn.innerHTML = originalHtml;
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy: ', err);
+            });
+        });
+
+        // Back to login
+        document.getElementById('backToLogin').addEventListener('click', () => {
+            window.location.href = 'login.html';
+        });
+
+        console.log('Signup page loaded successfully');
+    </script>
+</body> 
+</html>
